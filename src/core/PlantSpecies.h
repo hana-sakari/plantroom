@@ -1,12 +1,13 @@
 #pragma once
 
+#include <cstdint>
 #include <string>
 #include <vector>
 
 enum class Rarity { Common, Rare, Exotic }; //different price and frequency of popping up at the store
 
-struct PlantDef {
-    std::string id;
+struct PlantSpecies {
+    uint32_t id;
     std::string name;
     std::string description;
     int price = 0;

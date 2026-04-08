@@ -25,9 +25,7 @@ add_executable(plantroom
     core/Game.cpp
     core/User.cpp
     core/Plant.cpp
-    core/PlantDef.cpp
-    core/Room.cpp
-    core/Inventory.cpp
+    core/PlantSpecies.cpp
     core/Shop.cpp
     core/IncomeEngine.cpp
     ui/App.cpp

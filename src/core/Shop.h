@@ -1,8 +1,7 @@
 #pragma once
 
-#include "PlantDef.h"
+#include "PlantSpecies.h"
 #include "User.h"
-#include "Inventory.h"
 #include <vector>
 #include <string>
 
@@ -10,14 +9,14 @@ enum class BuyResult { Success, NotEnoughCoins, NotFound };
 
 class Shop {
 public:
-    explicit Shop(const std::vector<PlantDef> &catalog);
+    explicit Shop(const std::vector<PlantSpecies> &catalog);
 
-    const std::vector<PlantDef> &getAvailable() const;
+    auto getAvailable() const -> const std::vector<PlantSpecies> &;
 
-    BuyResult buy(const std::string &defId, User &user, Inventory &inventory);
+    auto buy(const std::string &speciesId, User &user) -> BuyResult;
 
 private:
-    const std::vector<PlantDef> &catalog_;
+    const std::vector<PlantSpecies> catalog_;
 
-    const PlantDef *findDef(const std::string &defId) const;
+    auto findSpecies(const std::string &speciesId) const -> const PlantSpecies *;
 };

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <string>
 #include <ctime>
 #include <vector>
@@ -9,8 +10,8 @@ enum class GrowthStage { Seedling, Growing, Mature };
 enum class PlantHealth { Healthy, Wilted }; //think about later : need some time to recover from wilted or doesnt give money when wilted
 
 struct Plant {
-    std::string defId;
-    int slot = -1; //default not placed anywhere
+    std::string speciesId;
+    uint8_t slot = -1; //default not placed anywhere
     GrowthStage growthStage = GrowthStage::Seedling;
     PlantHealth health = PlantHealth::Healthy;
     std::time_t placedAt = 0;

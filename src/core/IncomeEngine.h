@@ -1,22 +1,21 @@
 #pragma once
 
 #include "User.h"
-#include "Room.h"
-#include "PlantDef.h"
+#include "PlantSpecies.h"
 #include <vector>
 #include <ctime>
 
 class IncomeEngine {
 public:
-    explicit IncomeEngine(const std::vector<PlantDef> &catalog);
+    explicit IncomeEngine(const std::vector<PlantSpecies> &allSpecies);
 
-    int calculateOfflineIncome(const Room &room, std::time_t from, std::time_t to) const; //how much money was produced by plants while player offline
+    uint32_t calculateOfflineIncome(const User &user, std::time_t from, std::time_t to) const; //how much money was produced by plants while player offline
     //think about later : different pay rate for when the app is opened vs player is offline
 
-    void tick(User &user, const Room &room) const;
+    void tick(User &user) const;
 
 private:
-    const std::vector<PlantDef> &catalog_;
+    const std::vector<PlantSpecies> &allSpecies_;
 
-    const PlantDef *findDef(const std::string &defId) const;
+    const PlantSpecies *findDef(const std::string &speciesId) const;
 };
