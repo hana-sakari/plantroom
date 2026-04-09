@@ -1,1 +1,32 @@
-[]
+[
+  {
+    "id": 1,
+    "name": "Monstera",
+    "description": "Tropical plant",
+    "price": 150,
+    "rarity": "Exotic",
+    "incomePerMinute": 5,
+    "growthDurations": [60, 120, 180],
+    "asciiArt": ["monstera1", "monstera2", "monstera3"]
+  },
+  {
+    "id": 2,
+    "name": "Zebra plant",
+    "description": "Tropical plant",
+    "price": 100,
+    "rarity": "Rare",
+    "incomePerMinute": 3,
+    "growthDurations": [40, 100, 150],
+    "asciiArt": ["zebra1", "zebra2", "zebra3"]
+  },
+  {
+    "id": 3,
+    "name": "Cyclamen",
+    "description": "Mediterranean plant",
+    "price": 50,
+    "rarity": "Common",
+    "incomePerMinute": 2,
+    "growthDurations": [30, 80, 100],
+    "asciiArt": ["cyclamen1", "cyclamen2", "cyclamen3"]
+  }
+]
