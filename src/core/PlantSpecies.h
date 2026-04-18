@@ -11,9 +11,9 @@ struct PlantSpecies {
     uint32_t id;
     std::string name;
     std::string description;
-    int price = 0;
+    uint32_t price = 0;
     Rarity rarity = Rarity::Common;
-    int incomePerMinute = 0;
+    uint32_t incomePerMinute = 0;
     std::vector<int> growthDurations; //for each stage
     std::vector<std::string> asciiArt; //different for each stage
 };

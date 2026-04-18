@@ -4,9 +4,10 @@
 #include <string>
 #include <ctime>
 #include <optional>
+#include <nlohmann/json.hpp>
 #include "Plant.h"
 
-inline constexpr int SLOT_COUNT = 6;
+inline constexpr uint8_t SLOT_COUNT = 6;
 
 
 struct User { //think about identifying users

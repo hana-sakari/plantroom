@@ -4,6 +4,7 @@
 #include <string>
 #include <ctime>
 #include <vector>
+#include <nlohmann/json.hpp>
 
 enum class GrowthStage { Seedling, Growing, Mature };
 
@@ -11,7 +12,6 @@ enum class PlantHealth { Healthy, Wilted }; //think about later : need some time
 
 struct Plant {
     std::string speciesId;
-    uint8_t slot = -1; //default not placed anywhere
     GrowthStage growthStage = GrowthStage::Seedling;
     PlantHealth health = PlantHealth::Healthy;
     std::time_t placedAt = 0;
@@ -19,3 +19,7 @@ struct Plant {
 
     void updateGrowthStage(std::time_t now, const std::vector<int> &growthDurations);
 };
+
+NLOHMANN_JSON_SERIALIZE_ENUM(GrowthStage, {{GrowthStage::Seedling, "Seedling"}, {GrowthStage::Growing, "Growing"}, {GrowthStage::Mature, "Mature"}})
+NLOHMANN_JSON_SERIALIZE_ENUM(PlantHealth, {{PlantHealth::Healthy, "Healthy"}, {PlantHealth::Wilted, "Wilted"}})
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Plant, speciesId, growthStage, health, placedAt, lastWateredAt)
