@@ -49,7 +49,10 @@ Element makeShopCard(const PlantSpecies& species, bool selected) {
 
 } // namespace
 
-Component MakeShopView(const std::vector<PlantSpecies>& catalog) {
+Component MakeShopView(
+    const std::vector<PlantSpecies>& catalog,
+    std::function<void(uint32_t speciesId)> onBuy
+    ) {
     struct State { int selected = 0; };
     auto state = std::make_shared<State>();
 

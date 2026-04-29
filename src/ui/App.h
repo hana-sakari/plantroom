@@ -13,7 +13,7 @@ class App { //responsible only for ui and inputs from user
     uint8_t currentTab = 0;
 
     void onBuyPlant(uint32_t speciesId);
-    void onPlacePlant(uint8_t slot, uint32_t plantId);
+    void onPlacePlant(uint8_t slot, uint32_t inventoryIdx);
     void onRemovePlant(uint8_t slot);
 public:
     explicit App(const std::string& username, Game& game);

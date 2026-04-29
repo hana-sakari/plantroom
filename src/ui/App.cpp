@@ -11,12 +11,16 @@
 using namespace ftxui;
 
 void App::onBuyPlant(uint32_t speciesId) {
+    auto buyResult = game.getShop().buy(speciesId, user);
+    //TODO: change ui based on the result of buying
 }
 
-void App::onPlacePlant(uint8_t slot, uint32_t plantId) {
+void App::onPlacePlant(uint8_t slot, uint32_t inventoryIdx) {
+    game.placePlant(user, slot, inventoryIdx);
 }
 
 void App::onRemovePlant(uint8_t slot) {
+    game.removePlant(user, slot);
 }
 
 App::App(const std::string &username, Game &game) : game(game), saveManager("data/saves") {
@@ -32,16 +36,27 @@ void App::run() {
 
     int tab = 0;
     int focusedArea = 0; // 0 = tab bar, 1 = content
-    std::vector<std::string> tabNames = {" Inventory ", " Room ", " Shop "};
-    auto tabToggle = Toggle(&tabNames, &tab);
+    const std::vector<std::string> tabNames = {" Inventory ", " Room ", " Shop "};
+    const auto tabToggle = Toggle(&tabNames, &tab);
 
     const auto &catalog = game.getShop().getAvailable();
 
     auto inventoryView = MakeInventoryView(user, catalog);
-    auto roomView = MakeRoomView(user, [this](uint8_t slot, uint32_t plantId) {
-        onPlacePlant(slot, plantId);
-    });
-    auto shopView = MakeShopView(catalog);
+    auto roomView = MakeRoomView(
+        user,
+        catalog,
+        [this](uint8_t slot, int inventoryIdx) {
+            onPlacePlant(slot, static_cast<uint32_t>(inventoryIdx));
+        },
+        [this](uint8_t slot) {
+            onRemovePlant(slot);
+        }
+    );
+    auto shopView = MakeShopView(
+        catalog,
+        [this](const uint32_t speciesId) {
+            onBuyPlant(speciesId);
+        });
 
     // Used for rendering only, Container::Tab drops keyboard events unless FTXUI
     // considers it "focused" which it never is

@@ -1,32 +1,19 @@
 #include "ui/InventoryView.h"
+#include "util/PlantUtils.h"
 #include <ftxui/component/component.hpp>
 #include <ftxui/dom/elements.hpp>
 #include "ftxui/component/event.hpp"
 
 using namespace ftxui;
+using namespace PlantUtils;
 
 namespace {
 
 constexpr int VISIBLE_CARDS = 5;
 constexpr int CARD_WIDTH = 14;
 
-const PlantSpecies* findSpecies(const std::vector<PlantSpecies>& catalog, const std::string& id) {
-    for (const auto& s : catalog)
-        if (std::to_string(s.id) == id) return &s;
-    return nullptr;
-}
-
-std::string stageName(GrowthStage s) {
-    switch (s) {
-        case GrowthStage::Seedling: return "Seedling";
-        case GrowthStage::Growing:  return "Growing";
-        case GrowthStage::Mature:   return "Mature";
-    }
-    return "?";
-}
-
 Element makePlantCard(const Plant& plant, const std::vector<PlantSpecies>& catalog, bool selected) {
-    std::string name = plant.speciesId;
+    std::string name = std::to_string(plant.speciesId);
     std::string art = "  [ ]  ";
 
     if (const auto* sp = findSpecies(catalog, plant.speciesId)) {
