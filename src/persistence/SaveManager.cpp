@@ -11,17 +11,16 @@ void SaveManager::save(const User& user) const {
     auto filePath = saveDir_ / (user.name + ".json");
     std::ofstream ofs(filePath);
 
-    std::vector<json> slotsJson;
-    for (const auto& slot : user.slots_) {
-        slotsJson.push_back(slot);
-    }
-
     json j;
     j["id"] = user.id;
     j["name"] = user.name;
     j["coins"] = user.coins;
     j["lastSavedAt"] = user.lastSavedAt;
     j["plantsInventory"] = user.plantsInventory;
+    json slotsJson = json::array();
+    for (const auto& slot : user.slots_) {
+        slotsJson.push_back(slot.has_value() ? json(*slot) : json(nullptr));
+    }
     j["slots_"] = slotsJson;
 
     ofs << j.dump(2);
@@ -40,12 +39,9 @@ User SaveManager::load(const std::string& name) const {
     user.coins = j["coins"];
     user.lastSavedAt = j["lastSavedAt"];
     user.plantsInventory = j["plantsInventory"];
-
-    auto slotsJson = j["slots_"].get<std::vector<json>>();
+    const auto& slotsJson = j["slots_"];
     for (size_t i = 0; i < slotsJson.size() && i < user.slots_.size(); ++i) {
-        if (!slotsJson[i].is_null()) {
-            user.slots_[i] = slotsJson[i].get<Plant>();
-        }
+        user.slots_[i] = slotsJson[i].is_null() ? std::nullopt : std::optional<Plant>(slotsJson[i].get<Plant>());
     }
 
     return user;
