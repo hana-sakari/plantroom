@@ -6,5 +6,6 @@ class Game {
 public:
     explicit Game(Shop  shop);
     const Shop& getShop() const {return shop_;}
-
+    void placePlant(User& user, uint8_t slot, uint32_t inventoryIdx);
+    void removePlant(User& user, uint8_t slot);
 };

@@ -7,13 +7,13 @@ auto Shop::getAvailable() const -> const std::vector<PlantSpecies>& {
     return catalog_;
 }
 
-auto Shop::findSpecies(const std::string& speciesId) const -> const PlantSpecies* {
+auto Shop::findSpecies(const uint32_t &speciesId) const -> const PlantSpecies* {
     auto it = std::find_if(catalog_.begin(), catalog_.end(),
-        [&](const PlantSpecies& s) { return std::to_string(s.id) == speciesId; });
+        [&](const PlantSpecies& s) { return s.id == speciesId; });
     return it == catalog_.end() ? nullptr : &(*it);
 }
 
-auto Shop::buy(const std::string& speciesId, User& user) -> BuyResult {
+auto Shop::buy(const uint32_t &speciesId, User& user) const -> BuyResult {
     const PlantSpecies* species = findSpecies(speciesId);
     if (!species) return BuyResult::NotFound;
     if (user.coins < static_cast<uint32_t>(species->price)) return BuyResult::NotEnoughCoins;

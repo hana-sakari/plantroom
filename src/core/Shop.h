@@ -13,10 +13,10 @@ public:
 
     auto getAvailable() const -> const std::vector<PlantSpecies> &;
 
-    auto buy(const std::string &speciesId, User &user) -> BuyResult;
+    auto buy(const uint32_t &speciesId, User &user) const -> BuyResult;
 
 private:
     const std::vector<PlantSpecies> catalog_;
 
-    auto findSpecies(const std::string &speciesId) const -> const PlantSpecies *;
+    auto findSpecies(const uint32_t &speciesId) const -> const PlantSpecies *;
 };

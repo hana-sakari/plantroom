@@ -11,7 +11,7 @@ enum class GrowthStage { Seedling, Growing, Mature };
 enum class PlantHealth { Healthy, Wilted }; //think about later : need some time to recover from wilted or doesnt give money when wilted
 
 struct Plant {
-    std::string speciesId;
+    uint32_t speciesId;
     GrowthStage growthStage = GrowthStage::Seedling;
     PlantHealth health = PlantHealth::Healthy;
     std::time_t placedAt = 0;
