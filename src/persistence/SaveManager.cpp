@@ -5,7 +5,9 @@
 
 using json = nlohmann::json;
 
-SaveManager::SaveManager(std::filesystem::path saveDir) : saveDir_(std::move(saveDir)) {}
+SaveManager::SaveManager(std::filesystem::path saveDir) : saveDir_(std::move(saveDir)) {
+    std::filesystem::create_directories(saveDir_);
+}
 
 void SaveManager::save(const User& user) const {
     auto filePath = saveDir_ / (user.name + ".json");
