@@ -1,9 +1,11 @@
 #include "ui/ShopView.h"
+#include "util/PlantUtils.h"
 #include <ftxui/component/component.hpp>
 #include <ftxui/dom/elements.hpp>
 #include "ftxui/component/event.hpp"
 
 using namespace ftxui;
+using namespace PlantUtils;
 
 namespace {
 
@@ -19,17 +21,7 @@ Color rarityColor(Rarity r) {
     return Color::White;
 }
 
-std::string rarityName(Rarity r) {
-    switch (r) {
-        case Rarity::Common: return "Common";
-        case Rarity::Rare:   return "Rare";
-        case Rarity::Exotic: return "Exotic";
-    }
-    return "?";
-}
-
 Element makeShopCard(const PlantSpecies& species, bool selected) {
-    // Always show seedling art in shop
     std::string art = "  [ ]  ";
     if (!species.asciiArt.empty())
         art = species.asciiArt[0];
@@ -51,10 +43,15 @@ Element makeShopCard(const PlantSpecies& species, bool selected) {
 
 Component MakeShopView(
     const std::vector<PlantSpecies>& catalog,
-    std::function<void(uint32_t speciesId)> onBuy
+    std::function<BuyResult(uint32_t speciesId)> onBuy
     ) {
-    struct State { int selected = 0; };
-    auto state = std::make_shared<State>();
+    struct ShopState {
+        int selected = 0;
+        bool buyingMode = false;
+        std::string message;
+        bool messageIsError = false;
+    };
+    auto state = std::make_shared<ShopState>();
 
     auto renderer = Renderer([&catalog, state] {
         if (catalog.empty()) {
@@ -76,8 +73,28 @@ Component MakeShopView(
         for (int i = start; i < end; i++)
             cards.push_back(makeShopCard(catalog[i], i == state->selected));
 
-        const auto& sel = catalog[state->selected];
-        std::string desc = sel.description + "  |  Income: " + std::to_string(sel.incomePerMinute) + "/min";
+        Element bottomBar;
+        if (state->buyingMode) {
+            const auto& sel = catalog[state->selected];
+            bottomBar = hbox({
+                text("Buy ") | bold,
+                text(sel.name) | bold | color(rarityColor(sel.rarity)),
+                text(" for ") | bold,
+                text(std::to_string(sel.price) + " coins") | bold | color(Color::Yellow),
+                text("?  "),
+                text("[Enter]") | color(Color::Green),
+                text(" Confirm   "),
+                text("[Esc]") | color(Color::GrayDark),
+                text(" Cancel"),
+            }) | hcenter;
+        } else if (!state->message.empty()) {
+            Color msgColor = state->messageIsError ? Color::Red : Color::Green;
+            bottomBar = text(state->message) | center | color(msgColor);
+        } else {
+            const auto& sel = catalog[state->selected];
+            std::string desc = sel.description + "  |  Income: " + std::to_string(sel.incomePerMinute) + "/min";
+            bottomBar = text(desc) | center | color(Color::GrayDark);
+        }
 
         return vbox({
             text("Shop") | bold | center,
@@ -90,15 +107,43 @@ Component MakeShopView(
             }) | hcenter,
             filler(),
             separator(),
-            text(desc) | center | color(Color::GrayDark),
+            bottomBar,
         }) | border | flex;
     });
 
-    return CatchEvent(renderer, [&catalog, state](Event e) {
-        int n = (int)catalog.size();
-        if (n == 0) return false;
-        if (e == Event::ArrowRight) { state->selected = std::min(n - 1, state->selected + 1); return true; }
-        if (e == Event::ArrowLeft)  { state->selected = std::max(0,     state->selected - 1); return true; }
-        return false;
+    return CatchEvent(renderer, [&catalog, state, onBuy](Event e) {
+        if (state->buyingMode) {
+            if (e == Event::Return) {
+                BuyResult result = onBuy(catalog[state->selected].id);
+                state->buyingMode = false;
+                if (result == BuyResult::Success) {
+                    state->message = "Thanks for your purchase!";
+                    state->messageIsError = false;
+                } else if (result == BuyResult::NotEnoughCoins) {
+                    state->message = "Not enough coins!";
+                    state->messageIsError = true;
+                } else {
+                    state->message = "Plant not found.";
+                    state->messageIsError = true;
+                }
+                return true;
+            }
+            if (e == Event::Escape) {
+                state->buyingMode = false;
+                return true;
+            }
+            return true;
+        } else {
+            int n = (int)catalog.size();
+            if (n == 0) return false;
+            if (e == Event::ArrowRight) { state->selected = std::min(n - 1, state->selected + 1); return true; }
+            if (e == Event::ArrowLeft)  { state->selected = std::max(0,     state->selected - 1); return true; }
+            if (e == Event::Return) {
+                state->buyingMode = true;
+                state->message = "";
+                return true;
+            }
+            return false;
+        }
     });
 }

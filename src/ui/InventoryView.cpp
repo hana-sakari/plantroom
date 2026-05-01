@@ -63,6 +63,14 @@ Component MakeInventoryView(const User& user, const std::vector<PlantSpecies>& c
 
         std::string counter = std::to_string(state->selected + 1) + " / " + std::to_string(n);
 
+        const auto& sel = user.plantsInventory[state->selected];
+        std::string hint = "";
+        if (const auto* sp = findSpecies(catalog, sel.speciesId)) {
+            hint = stageName(sel.growthStage) + "  |  "
+                 + rarityName(sp->rarity) + "  |  "
+                 + std::to_string(sp->incomePerMinute) + " coins/min";
+        }
+
         return vbox({
             text("Your Inventory") | bold | center,
             separator(),
@@ -74,6 +82,7 @@ Component MakeInventoryView(const User& user, const std::vector<PlantSpecies>& c
             }) | hcenter,
             filler(),
             separator(),
+            text(hint) | center | color(Color::GrayDark),
             text(counter) | center | color(Color::GrayDark),
         }) | border | flex;
     });

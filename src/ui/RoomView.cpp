@@ -49,12 +49,19 @@ Component MakeRoomView(
         //slot grid
         std::vector<Element> slots;
         for (int i = 0; i < SLOT_COUNT; i++) {
-            std::string content = "[empty]";
-            if (user.slots_[i]) {
-                const auto *sp = findSpecies(catalog, user.slots_[i]->speciesId);
-                content = sp ? sp->name : std::to_string(user.slots_[i]->speciesId);
+            Element slot;
+            if (user.slots_[i].has_value()) {
+                const auto& plant = *user.slots_[i];
+                const auto* sp = findSpecies(catalog, plant.speciesId);
+                std::string art = "  [ ]  ";
+                if (sp) {
+                    int idx = static_cast<int>(plant.growthStage);
+                    if (idx < (int)sp->asciiArt.size()) art = sp->asciiArt[idx];
+                }
+                slot = text(art) | center | border | size(WIDTH, EQUAL, 14);
+            } else {
+                slot = text("") | border | size(WIDTH, EQUAL, 14);
             }
-            Element slot = text(content) | border | size(WIDTH, EQUAL, 14);
             if (i == state->selectedSlot)
                 slot = slot | (state->pickingMode ? color(Color::Cyan) : color(Color::Yellow)) | bold;
             slots.push_back(slot);

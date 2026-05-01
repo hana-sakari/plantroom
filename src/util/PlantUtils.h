@@ -22,4 +22,13 @@ inline std::string stageName(GrowthStage stage) {
     return "?";
 }
 
+inline std::string rarityName(Rarity r) {
+    switch (r) {
+        case Rarity::Common: return "Common";
+        case Rarity::Rare:   return "Rare";
+        case Rarity::Exotic: return "Exotic";
+    }
+    return "?";
+}
+
 } // namespace PlantUtils
