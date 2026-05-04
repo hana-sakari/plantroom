@@ -21,6 +21,10 @@ SharedState::SharedState(const std::filesystem::path &dataDir) : dataDir_(dataDi
     }
 }
 
+std::shared_lock<std::shared_mutex> SharedState::lockUserShared(const std::string &username) {
+    return std::shared_lock<std::shared_mutex>(*userMutexes_.at(username));
+}
+
 // Returns a raw pointer into allUsers_
 // shared lock on userMutexes_[username] before calling
 // and should not hold it after the user may be removed

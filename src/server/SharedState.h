@@ -17,8 +17,10 @@ public:
     // loadUser/saveUser use dataDir/saves/<username>.json
     explicit SharedState(const std::filesystem::path &dataDir);
 
+    // Hold the returned lock for as long as you are reading user data
+    std::shared_lock<std::shared_mutex> lockUserShared(const std::string &username);
 
-    // must hold a shared lock on the user's mutex before calling
+    // must hold a shared lock from lockUserShared before calling
     User *getUser(const std::string &username);
 
     // Acquires exclusive lock on the user, then calls fn(user)
