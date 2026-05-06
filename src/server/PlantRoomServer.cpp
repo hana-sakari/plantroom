@@ -11,7 +11,7 @@
 
 PlantRoomServer::PlantRoomServer(const std::string &socketPath,
     const std::filesystem::path &dataDir)
-    : socketPath_(socketPath), sharedState_(dataDir) {
+    : socketPath_(socketPath), sharedState_(dataDir), authStore_(dataDir / "auth.json") {
 }
 
 PlantRoomServer::~PlantRoomServer() {
@@ -54,7 +54,7 @@ void PlantRoomServer::acceptLoop() {
             continue; //accept failed
 
         std::thread([clientFd, this]() {
-            Session session(clientFd, sharedState_);
+            Session session(clientFd, sharedState_, authStore_);
             session.run();
             close(clientFd);
         }).detach();

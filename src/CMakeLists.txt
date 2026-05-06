@@ -67,10 +67,15 @@ add_executable(plantroom-server
         server/Session.cpp
         server/Protocol.cpp
         server/PlantRoomServer.cpp
+        server/AuthStore.cpp
+        server/AuthStore.h
 )
 
 target_include_directories(plantroom-server PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
+find_package(OpenSSL REQUIRED)
+
 target_link_libraries(plantroom-server PRIVATE
         nlohmann_json::nlohmann_json
+        OpenSSL::Crypto
 )

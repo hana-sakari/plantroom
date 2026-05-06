@@ -4,6 +4,7 @@
 #include <string>
 #include <thread>
 
+#include "AuthStore.h"
 #include "SharedState.h"
 
 class PlantRoomServer {
@@ -23,6 +24,7 @@ private:
 
     std::string socketPath_;
     SharedState sharedState_;
+    AuthStore authStore_;
     int serverFd_ = -1;
     std::atomic<bool> running_{false};
     std::thread tickThread_;

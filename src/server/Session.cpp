@@ -2,7 +2,8 @@
 #include "server/Protocol.h"
 #include <nlohmann/json.hpp>
 
-Session::Session(int fd, SharedState &sharedState) : fd(fd), sharedState(sharedState) {
+Session::Session(int fd, SharedState &sharedState, AuthStore &authStore) : fd(fd), sharedState(sharedState),
+    authStore(authStore) {
 }
 
 void Session::run() {
@@ -16,16 +17,45 @@ void Session::run() {
             auto msg = nlohmann::json::parse(line);
             std::string cmd = msg["cmd"];
 
-            // reject everything except LOGIN_PASS until the user is logged in
-            if (username.empty() && cmd != Cmd::LOGIN_PASS) {
+            // reject game commands until logged in
+            bool isAuthCmd = cmd == Cmd::LOGIN_PASS
+                    || cmd == Cmd::LOGIN_KEY
+                    || cmd == Cmd::REGISTER;
+            if (username.empty() && !isAuthCmd) {
                 Protocol::writeLine(fd, Protocol::errorResponse("not logged in"));
                 continue;
             }
 
             if (cmd == Cmd::LOGIN_PASS) {
-                username = msg["username"];
-                sharedState.loadUser(username);
-                Protocol::writeLine(fd, Protocol::okResponse());
+                std::string user = msg["username"];
+                std::string pass = msg["password"];
+                if (!authStore.verifyPassword(user, pass)) {
+                    Protocol::writeLine(fd, Protocol::errorResponse("invalid credentials"));
+                } else {
+                    username = user;
+                    sharedState.loadUser(username);
+                    Protocol::writeLine(fd, Protocol::okResponse());
+                }
+            } else if (cmd == Cmd::LOGIN_KEY) {
+                // OpenSSH already verified the key
+                std::string user = msg["username"];
+                if (!authStore.userExists(user)) {
+                    Protocol::writeLine(fd, Protocol::errorResponse("user not found"));
+                } else {
+                    username = user;
+                    sharedState.loadUser(username);
+                    Protocol::writeLine(fd, Protocol::okResponse());
+                }
+            } else if (cmd == Cmd::REGISTER) {
+                std::string user = msg["username"];
+                std::string pass = msg["password"];
+                if (!authStore.registerUser(user, pass)) {
+                    Protocol::writeLine(fd, Protocol::errorResponse("username taken"));
+                } else {
+                    username = user;
+                    sharedState.loadUser(username);
+                    Protocol::writeLine(fd, Protocol::okResponse());
+                }
             } else if (cmd == Cmd::GET_STATE) {
                 auto lock = sharedState.lockUserShared(username);
                 User *user = sharedState.getUser(username);

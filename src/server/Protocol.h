@@ -8,6 +8,7 @@
 
 namespace Cmd {
     inline constexpr const char *LOGIN_PASS = "LOGIN_PASS";
+    inline constexpr const char *LOGIN_KEY = "LOGIN_KEY";
     inline constexpr const char *REGISTER = "REGISTER";
     inline constexpr const char *GET_STATE = "GET_STATE";
     inline constexpr const char *BUY = "BUY";
