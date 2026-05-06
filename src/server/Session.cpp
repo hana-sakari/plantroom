@@ -1,5 +1,6 @@
 #include "server/Session.h"
 #include "server/Protocol.h"
+#include "core/Plant.h"
 #include <nlohmann/json.hpp>
 
 Session::Session(int fd, SharedState &sharedState, AuthStore &authStore) : fd(fd), sharedState(sharedState),
@@ -64,23 +65,71 @@ void Session::run() {
                 Protocol::writeLine(fd, Protocol::shopListResponse(sharedState.getShopListings()));
             } else if (cmd == Cmd::BUY) {
                 uint32_t speciesId = msg["speciesId"];
+                bool ok = false;
+                std::string errMsg;
                 sharedState.modifyUser(username, [&](User &user) {
-                    // TODO: find species, check coins, add plant to inventory
+                    const PlantSpecies *species = sharedState.findSpeciesById(speciesId);
+                    if (!species) {
+                        errMsg = "unknown species";
+                        return;
+                    }
+                    if (user.coins < species->price) {
+                        errMsg = "not enough coins";
+                        return;
+                    }
+                    user.coins -= species->price;
+                    user.plantsInventory.push_back(Plant{speciesId});
+                    ok = true;
                 });
-                Protocol::writeLine(fd, Protocol::okResponse());
+                if (ok)
+                    Protocol::writeLine(fd, Protocol::okResponse());
+                else
+                    Protocol::writeLine(fd, Protocol::errorResponse(errMsg));
             } else if (cmd == Cmd::PLACE) {
                 uint32_t slot = msg["slot"];
                 uint32_t inventoryIdx = msg["inventoryIdx"];
+                bool ok = false;
+                std::string errMsg;
                 sharedState.modifyUser(username, [&](User &user) {
-                    // TODO: move plant from inventory to slot
+                    if (inventoryIdx >= user.plantsInventory.size()) {
+                        errMsg = "not enough inventory plants";
+                        return;
+                    }
+                    if (slot >= SLOT_COUNT) {
+                        errMsg = "invalid slot index";
+                        return;
+                    }
+                    user.slots_[slot] = user.plantsInventory[inventoryIdx];
+                    user.plantsInventory.erase(user.plantsInventory.begin() + inventoryIdx);
+                    ok = true;
                 });
-                Protocol::writeLine(fd, Protocol::okResponse());
+                if (ok)
+                    Protocol::writeLine(fd, Protocol::okResponse());
+                else {
+                    Protocol::writeLine(fd, Protocol::errorResponse(errMsg));
+                }
             } else if (cmd == Cmd::REMOVE) {
                 uint32_t slot = msg["slot"];
+                bool ok = false;
+                std::string errMsg;
                 sharedState.modifyUser(username, [&](User &user) {
-                    // TODO: move plant from slot back to inventory
+                    if (slot >= SLOT_COUNT) {
+                        errMsg = "invalid slot index";
+                        return;
+                    }
+                    if (!user.slots_[slot].has_value()) {
+                        errMsg = "slot is already empty";
+                        return;
+                    }
+                    user.plantsInventory.push_back(user.slots_[slot].value());
+                    user.slots_[slot].reset();
+                    ok = true;
+
                 });
-                Protocol::writeLine(fd, Protocol::okResponse());
+                if (ok)
+                    Protocol::writeLine(fd, Protocol::okResponse());
+                else
+                    Protocol::writeLine(fd, Protocol::errorResponse(errMsg));
             } else if (cmd == Cmd::SAVE) {
                 sharedState.saveUser(username);
                 Protocol::writeLine(fd, Protocol::okResponse());

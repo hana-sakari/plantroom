@@ -37,6 +37,10 @@ add_executable(plantroom
         persistence/CatalogLoader.cpp
         util/Timer.cpp
         util/AsciiRenderer.cpp
+        client/ServerConnection.cpp
+        client/ServerConnection.h
+        ui/LoginView.cpp
+        ui/LoginView.h
 )
 
 target_include_directories(plantroom PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})

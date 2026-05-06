@@ -38,6 +38,9 @@ public:
 
     const std::vector<PlantSpecies> &getCatalog() const;
 
+    // Returns nullptr if no species with that id exists
+    const PlantSpecies* findSpeciesById(uint32_t speciesId) const;
+
 private:
     std::filesystem::path dataDir_;
     std::vector<PlantSpecies> catalog_; // all species, loaded from plants.json

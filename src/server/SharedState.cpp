@@ -62,3 +62,9 @@ void SharedState::tickAllOnlineUsers() {
 
 const std::vector<PlantSpecies> &SharedState::getShopListings() const { return shopListings_; }
 const std::vector<PlantSpecies> &SharedState::getCatalog() const { return catalog_; }
+
+const PlantSpecies* SharedState::findSpeciesById(uint32_t speciesId) const {
+    auto it = std::ranges::find_if(catalog_,
+        [speciesId](const PlantSpecies& s){ return s.id == speciesId; });
+    return it != catalog_.end() ? &*it : nullptr;
+}
