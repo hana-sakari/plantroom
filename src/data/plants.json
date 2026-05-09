@@ -2,31 +2,71 @@
   {
     "id": 1,
     "name": "Monstera",
-    "description": "Tropical plant",
+    "description": "Dramatic tropical leaves that split as they mature.",
     "price": 150,
     "rarity": "Exotic",
     "incomePerMinute": 5,
-    "growthDurations": [60, 120, 180],
-    "asciiArt": ["monstera1", "monstera2", "monstera3"]
+    "growthDurations": [300, 600, 300],
+    "asciiArt": ["   ,   ", "  (O)  ", " (O_O) "]
   },
   {
     "id": 2,
-    "name": "Zebra plant",
-    "description": "Tropical plant",
+    "name": "Zebra Plant",
+    "description": "Striking striped leaves with vivid yellow flowers.",
     "price": 100,
     "rarity": "Rare",
     "incomePerMinute": 3,
-    "growthDurations": [40, 100, 150],
-    "asciiArt": ["zebra1", "zebra2", "zebra3"]
+    "growthDurations": [180, 360, 180],
+    "asciiArt": ["  |,|  ", " /|,|\\ ", "/||,||\\ "]
   },
   {
     "id": 3,
     "name": "Cyclamen",
-    "description": "Mediterranean plant",
+    "description": "Delicate Mediterranean flower with swept-back petals.",
     "price": 50,
     "rarity": "Common",
     "incomePerMinute": 2,
-    "growthDurations": [30, 80, 100],
-    "asciiArt": ["cyclamen1", "cyclamen2", "cyclamen3"]
+    "growthDurations": [60, 120, 60],
+    "asciiArt": ["   *   ", "  *(*) ", "*(*.*)* "]
+  },
+  {
+    "id": 4,
+    "name": "Cactus",
+    "description": "Slow but steady desert survivor. Rarely needs attention.",
+    "price": 30,
+    "rarity": "Common",
+    "incomePerMinute": 1,
+    "growthDurations": [600, 1200, 600],
+    "asciiArt": ["   |   ", "  ]|[  ", " ]-|-[ "]
+  },
+  {
+    "id": 5,
+    "name": "Succulent",
+    "description": "Compact rosette that stores water in its plump leaves.",
+    "price": 40,
+    "rarity": "Common",
+    "incomePerMinute": 2,
+    "growthDurations": [120, 240, 120],
+    "asciiArt": ["  (,)  ", " ((,)) ", "(((,)))"]
+  },
+  {
+    "id": 6,
+    "name": "Ficus",
+    "description": "Elegant weeping fig with glossy cascading branches.",
+    "price": 120,
+    "rarity": "Rare",
+    "incomePerMinute": 4,
+    "growthDurations": [240, 480, 240],
+    "asciiArt": ["  /^\\  ", " /^^^\\ ", "/^^^^^\\"]
+  },
+  {
+    "id": 7,
+    "name": "Orchid",
+    "description": "Exotic bloom of rare beauty. Rewards patience generously.",
+    "price": 200,
+    "rarity": "Exotic",
+    "incomePerMinute": 7,
+    "growthDurations": [420, 840, 420],
+    "asciiArt": ["  !,!  ", " @!,!@ ", "@@!,!@@"]
   }
 ]

@@ -1,30 +1,32 @@
-#include "core/Game.h"
-#include "core/Shop.h"
-#include "persistence/CatalogLoader.h"
+#include "client/ServerConnection.h"
 #include "ui/App.h"
-#include <filesystem>
-
-#ifdef _WIN32
-#include <windows.h>
-static std::filesystem::path exeDir() {
-    wchar_t buf[MAX_PATH];
-    GetModuleFileNameW(nullptr, buf, MAX_PATH);
-    return std::filesystem::path(buf).parent_path();
-}
-#else
-#include <unistd.h>
-static std::filesystem::path exeDir() {
-    return std::filesystem::canonical("/proc/self/exe").parent_path();
-}
-#endif
+#include "ui/LoginView.h"
+#include <iostream>
+#include <string>
 
 int main(int argc, char* argv[]) {
-    auto base = exeDir();
-    auto species = CatalogLoader::load(base / "data" / "plants.json");
-    Shop shop(species);
-    Game game(shop);
+    std::string sshUser;
+    for (int i = 1; i + 1 < argc; ++i) {
+        if (std::string(argv[i]) == "--user") {
+            sshUser = argv[i + 1];
+            break;
+        }
+    }
 
-    App app("bob", game, base / "data" / "saves");
+    ServerConnection conn("/tmp/plantroom.sock");
+
+    if (!sshUser.empty()) {
+        auto res = conn.loginKey(sshUser);
+        if (!res.ok) {
+            std::cerr << "Login failed: " << res.error << "\n";
+            return 1;
+        }
+    } else {
+        std::string username = RunLoginFlow(conn);
+        if (username.empty()) return 1;
+    }
+
+    App app(conn);
     app.run();
     return 0;
 }

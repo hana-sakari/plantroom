@@ -9,31 +9,32 @@
 #include <ftxui/dom/elements.hpp>
 #include <thread>
 #include <atomic>
-#include <ctime>
 
 using namespace ftxui;
 
 BuyResult App::onBuyPlant(uint32_t speciesId) {
-    return game.getShop().buy(speciesId, user);
+    auto res = conn_.buy(speciesId);
+    if (res.ok) {
+        user_ = conn_.getState();
+        return BuyResult::Success;
+    }
+    if (res.error == "not enough coins") return BuyResult::NotEnoughCoins;
+    return BuyResult::NotFound;
 }
 
 void App::onPlacePlant(uint8_t slot, uint32_t inventoryIdx) {
-    game.placePlant(user, slot, inventoryIdx);
+    auto res = conn_.place(slot, inventoryIdx);
+    if (res.ok) user_ = conn_.getState();
 }
 
 void App::onRemovePlant(uint8_t slot) {
-    game.removePlant(user, slot);
+    auto res = conn_.remove(slot);
+    if (res.ok) user_ = conn_.getState();
 }
 
-App::App(const std::string& username, Game& game, std::filesystem::path saveDir)
-    : game(game), saveManager(std::move(saveDir)), engine(this->game.getShop().getAvailable()) {
-    try {
-        user = saveManager.load(username);
-    } catch (const std::exception&) {
-        user = {0, username, 100, 0, {}, {}};
-    }
-    if (user.lastSavedAt > 0)
-        user.coins += engine.calculateOfflineIncome(user, user.lastSavedAt, std::time(nullptr));
+App::App(ServerConnection& conn) : conn_(conn) {
+    catalog_ = conn_.getShopList();
+    user_    = conn_.getState();
 }
 
 void App::run() {
@@ -41,16 +42,14 @@ void App::run() {
     std::atomic<bool> running{true};
 
     int tab = 0;
-    int focusedArea = 0; // 0 = tab bar, 1 = content
+    int focusedArea = 0;
     const std::vector<std::string> tabNames = {" Inventory ", " Room ", " Shop "};
     const auto tabToggle = Toggle(&tabNames, &tab);
 
-    const auto& catalog = game.getShop().getAvailable();
-
-    auto inventoryView = MakeInventoryView(user, catalog);
+    auto inventoryView = MakeInventoryView(user_, catalog_);
     auto roomView = MakeRoomView(
-        user,
-        catalog,
+        user_,
+        catalog_,
         [this](uint8_t slot, int inventoryIdx) {
             onPlacePlant(slot, static_cast<uint32_t>(inventoryIdx));
         },
@@ -59,8 +58,8 @@ void App::run() {
         }
     );
     auto shopView = MakeShopView(
-        catalog,
-        [this](const uint32_t speciesId) -> BuyResult {
+        catalog_,
+        [this](uint32_t speciesId) -> BuyResult {
             return onBuyPlant(speciesId);
         });
 
@@ -89,7 +88,7 @@ void App::run() {
         }
 
         return vbox({
-            RenderStatusBar(user.name, (int)user.coins),
+            RenderStatusBar(user_.name, (int)user_.coins),
             tabBar,
             text(hint) | hcenter | color(Color::GrayDark),
             separator(),
@@ -101,16 +100,14 @@ void App::run() {
 
     auto withNav = CatchEvent(renderer, [&](Event e) {
         if (e == Event::Custom) {
-            engine.tick(user);
+            user_ = conn_.getState();
             return true;
         }
         if (e == Event::Character('q')) {
-            user.lastSavedAt = std::time(nullptr);
-            saveManager.save(user);
+            conn_.save();
             screen.ExitLoopClosure()();
             return true;
         }
-        // Switch focus areas with Up/Down
         if (e == Event::ArrowDown && focusedArea == 0) {
             focusedArea = 1;
             return true;
@@ -121,13 +118,11 @@ void App::run() {
         }
 
         if (focusedArea == 0) {
-            // Route Left/Right to the toggle, consume everything else
             if (e == Event::ArrowLeft || e == Event::ArrowRight)
                 tabToggle->OnEvent(e);
             return true;
         }
 
-        // focusedArea == 1: route directly to the active view, bypassing Container::Tab
         if (tab >= 0 && tab < (int)views.size())
             return views[tab]->OnEvent(e);
         return false;
@@ -140,7 +135,11 @@ void App::run() {
         }
     });
 
-    screen.Loop(withNav);
+    try {
+        screen.Loop(withNav);
+    } catch (const std::exception&) {
+        // socket died mid-session
+    }
 
     running = false;
     tickThread.join();

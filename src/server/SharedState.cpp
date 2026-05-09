@@ -35,7 +35,13 @@ User *SharedState::getUser(const std::string &username) {
 
 void SharedState::loadUser(const std::string &username) {
     SaveManager sm(dataDir_ / "saves");
-    User user = sm.load(username);
+    User user;
+    try {
+        user = sm.load(username);
+    } catch (const std::exception &) {
+        // no save file yet, new user
+        user = User{0, username, 100, 0, {}, {}};
+    }
 
     std::lock_guard lock(mapMutex_);
     allUsers_.emplace(username, std::move(user));

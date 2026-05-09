@@ -22,25 +22,19 @@ FetchContent_MakeAvailable(nlohmann_json ftxui)
 
 add_executable(plantroom
         main.cpp
-        core/Game.cpp
+        client/ServerConnection.cpp
+        server/Protocol.cpp
         core/User.cpp
         core/Plant.cpp
         core/PlantSpecies.cpp
         core/Shop.cpp
-        core/IncomeEngine.cpp
         ui/App.cpp
+        ui/LoginView.cpp
         ui/RoomView.cpp
         ui/ShopView.cpp
         ui/InventoryView.cpp
         ui/StatusBar.cpp
-        persistence/SaveManager.cpp
-        persistence/CatalogLoader.cpp
-        util/Timer.cpp
         util/AsciiRenderer.cpp
-        client/ServerConnection.cpp
-        client/ServerConnection.h
-        ui/LoginView.cpp
-        ui/LoginView.h
 )
 
 target_include_directories(plantroom PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
