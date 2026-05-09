@@ -25,6 +25,7 @@ public:
     ActionResult place(uint8_t slot, uint32_t inventoryIdx);
     ActionResult remove(uint8_t slot);
     ActionResult save();
+    ActionResult addPublicKey(const std::string &pubkey);
 
 private:
     int fd_;

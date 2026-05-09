@@ -1,4 +1,5 @@
 #include <sys/socket.h>
+#include <sys/stat.h>
 #include <unistd.h>
 #include <sys/un.h>
 #include <cstring>
@@ -32,6 +33,7 @@ void PlantRoomServer::run() {
     unlink(socketPath_.c_str());
 
     bind(serverFd_, (sockaddr *) &addr, sizeof(addr));
+    chmod(socketPath_.c_str(), 0777);
 
     listen(serverFd_, 10); //10 - max clients queued waiting to be accepted
 

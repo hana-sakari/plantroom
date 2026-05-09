@@ -133,6 +133,10 @@ void Session::run() {
             } else if (cmd == Cmd::SAVE) {
                 sharedState.saveUser(username);
                 Protocol::writeLine(fd, Protocol::okResponse());
+            } else if (cmd == Cmd::ADD_KEY) {
+                std::string pubkey = msg["publicKey"];
+                authStore.addPublicKey(username, pubkey);
+                Protocol::writeLine(fd, Protocol::okResponse());
             } else {
                 Protocol::writeLine(fd, Protocol::errorResponse("unknown command"));
             }

@@ -136,3 +136,10 @@ ActionResult ServerConnection::save() {
         return {true, ""};
     return {false, resp.value("message", "unknown error")};
 }
+
+ActionResult ServerConnection::addPublicKey(const std::string &pubkey) {
+    auto resp = exchange({{"cmd", Cmd::ADD_KEY}, {"publicKey", pubkey}});
+    if (resp["status"] == "ok")
+        return {true, ""};
+    return {false, resp.value("message", "unknown error")};
+}

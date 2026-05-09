@@ -1,6 +1,7 @@
 #include "server/SharedState.h"
 #include "persistence/CatalogLoader.h"
 #include "persistence/SaveManager.h"
+#include <ctime>
 #include <fstream>
 #include <nlohmann/json.hpp>
 
@@ -41,6 +42,11 @@ void SharedState::loadUser(const std::string &username) {
     } catch (const std::exception &) {
         // no save file yet, new user
         user = User{0, username, 100, 0, {}, {}};
+    }
+
+    if (user.lastSavedAt > 0) {
+        IncomeEngine engine(catalog_);
+        user.coins += engine.calculateOfflineIncome(user, user.lastSavedAt, std::time(nullptr));
     }
 
     std::lock_guard lock(mapMutex_);

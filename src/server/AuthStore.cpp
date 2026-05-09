@@ -40,16 +40,18 @@ std::string AuthStore::hashPassword(const std::string &password, const std::stri
 
 void AuthStore::load() {
     if (!std::filesystem::exists(authFile_))
-        return; // no file yet, store_ stays empty
+        return;
 
     std::ifstream f(authFile_);
     auto j = nlohmann::json::parse(f);
 
     for (auto &[username, entry]: j.items()) {
-        store_[username] = {
-            entry["passwordHash"].get<std::string>(),
-            entry["salt"].get<std::string>()
-        };
+        Credentials c;
+        c.passwordHash = entry["passwordHash"];
+        c.salt = entry["salt"];
+        if (entry.contains("publicKeys"))
+            c.publicKeys = entry["publicKeys"].get<std::vector<std::string> >();
+        store_[username] = std::move(c);
     }
 }
 
@@ -58,9 +60,21 @@ void AuthStore::save() const {
     for (auto &[username, creds]: store_) {
         j[username]["passwordHash"] = creds.passwordHash;
         j[username]["salt"] = creds.salt;
+        j[username]["publicKeys"] = creds.publicKeys;
     }
     std::ofstream f(authFile_);
     f << j.dump(2);
+}
+
+bool AuthStore::addPublicKey(const std::string &username, const std::string &pubkey) {
+    std::lock_guard lock(mutex_);
+    if (!userExists(username))
+        return false;
+    auto &keys = store_.at(username).publicKeys;
+    if (std::find(keys.begin(), keys.end(), pubkey) == keys.end())
+        keys.push_back(pubkey);
+    save();
+    return true;
 }
 
 

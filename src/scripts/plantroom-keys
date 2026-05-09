@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# sshd AuthorizedKeysCommand — called with %t %k per incoming key attempt
+
+KEY_TYPE="$1"
+KEY_BLOB="$2"
+
+# update these two paths when running from another computer
+AUTH_JSON="/home/daryna/SemestralProject/lymarend/project/src/data/auth.json"
+BINARY="/home/daryna/SemestralProject/lymarend/project/src/cmake-build-debug/plantroom"
+
+FULL_KEY="$KEY_TYPE $KEY_BLOB"
+
+USERNAME=$(jq -r --arg k "$FULL_KEY" \
+    'to_entries[] | select((.value.publicKeys // [])[] == $k) | .key' \
+    "$AUTH_JSON" 2>/dev/null | head -1)
+
+if [ -n "$USERNAME" ]; then
+    echo "command=\"$BINARY --user $USERNAME\" $FULL_KEY"
+else
+    echo "command=\"$BINARY\" $FULL_KEY"
+fi

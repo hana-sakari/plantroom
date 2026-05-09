@@ -16,6 +16,7 @@ namespace Cmd {
     inline constexpr const char *REMOVE = "REMOVE";
     inline constexpr const char *SAVE = "SAVE";
     inline constexpr const char *SHOP_LIST = "SHOP_LIST";
+    inline constexpr const char *ADD_KEY  = "ADD_KEY";
 }
 
 namespace Protocol {
