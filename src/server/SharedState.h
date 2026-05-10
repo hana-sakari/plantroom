@@ -40,13 +40,16 @@ public:
     const std::vector<PlantSpecies> &getCatalog() const;
 
     // Returns nullptr if no species with that id exists
-    const PlantSpecies* findSpeciesById(uint32_t speciesId) const;
+    const PlantSpecies *findSpeciesById(uint32_t speciesId) const;
 
     std::vector<MarketListing> getMarketListings() const;
 
     // Returns error string, or "" on success
     std::string postToMarket(const std::string &seller, uint32_t inventoryIdx, uint32_t price);
+
     std::string buyFromMarket(const std::string &buyer, uint32_t listingId);
+
+    std::string removeFromMarket(const std::string &seller, uint32_t listingId);
 
 private:
     std::filesystem::path dataDir_;
@@ -57,6 +60,10 @@ private:
     std::unordered_map<std::string, std::unique_ptr<std::shared_mutex> > userMutexes_;
     std::unordered_map<std::string, std::unique_ptr<IncomeEngine> > incomeEngines_;
     std::mutex mapMutex_; // protects allUsers_, userMutexes_, and incomeEngines_
+    void loadMarket();
+
+    void saveMarket() const; // must be called with marketMutex_ held
+
     mutable std::mutex marketMutex_; // protects market_ and nextListingId_
     std::vector<MarketListing> market_;
     uint32_t nextListingId_ = 1;

@@ -124,7 +124,6 @@ void Session::run() {
                     user.plantsInventory.push_back(user.slots_[slot].value());
                     user.slots_[slot].reset();
                     ok = true;
-
                 });
                 if (ok)
                     Protocol::writeLine(fd, Protocol::okResponse());
@@ -141,7 +140,7 @@ void Session::run() {
                 Protocol::writeLine(fd, Protocol::marketListResponse(sharedState.getMarketListings()));
             } else if (cmd == Cmd::MARKET_POST) {
                 uint32_t inventoryIdx = msg["inventoryIdx"];
-                uint32_t price        = msg["price"];
+                uint32_t price = msg["price"];
                 std::string err = sharedState.postToMarket(username, inventoryIdx, price);
                 if (err.empty())
                     Protocol::writeLine(fd, Protocol::okResponse());
@@ -150,6 +149,13 @@ void Session::run() {
             } else if (cmd == Cmd::MARKET_BUY) {
                 uint32_t listingId = msg["listingId"];
                 std::string err = sharedState.buyFromMarket(username, listingId);
+                if (err.empty())
+                    Protocol::writeLine(fd, Protocol::okResponse());
+                else
+                    Protocol::writeLine(fd, Protocol::errorResponse(err));
+            } else if (cmd == Cmd::MARKET_REMOVE) {
+                uint32_t listingId = msg["listingId"];
+                std::string err = sharedState.removeFromMarket(username, listingId);
                 if (err.empty())
                     Protocol::writeLine(fd, Protocol::okResponse());
                 else

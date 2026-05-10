@@ -21,6 +21,7 @@ SharedState::SharedState(const std::filesystem::path &dataDir) : dataDir_(dataDi
     } else {
         shopListings_ = catalog_;
     }
+    loadMarket();
 }
 
 std::shared_lock<std::shared_mutex> SharedState::lockUserShared(const std::string &username) {
@@ -73,6 +74,21 @@ void SharedState::tickAllOnlineUsers() {
     }
 }
 
+void SharedState::loadMarket() {
+    auto path = dataDir_ / "market.json";
+    if (!std::filesystem::exists(path)) return;
+    std::ifstream f(path);
+    auto j = nlohmann::json::parse(f);
+    market_ = j.get<std::vector<MarketListing> >();
+    for (const auto &l: market_)
+        if (l.id >= nextListingId_) nextListingId_ = l.id + 1;
+}
+
+void SharedState::saveMarket() const {
+    std::ofstream f(dataDir_ / "market.json");
+    f << nlohmann::json(market_).dump(2);
+}
+
 std::vector<MarketListing> SharedState::getMarketListings() const {
     std::lock_guard lock(marketMutex_);
     return market_;
@@ -90,11 +106,11 @@ std::string SharedState::postToMarket(const std::string &seller, uint32_t invent
     }
     std::lock_guard lock(marketMutex_);
     market_.push_back({nextListingId_++, seller, plant, price});
+    saveMarket();
     return "";
 }
 
 std::string SharedState::buyFromMarket(const std::string &buyer, uint32_t listingId) {
-
     MarketListing listing;
     {
         std::lock_guard lock(marketMutex_);
@@ -126,6 +142,7 @@ std::string SharedState::buyFromMarket(const std::string &buyer, uint32_t listin
             return "listing already sold";
         }
         market_.erase(it);
+        saveMarket();
     }
 
     {
@@ -141,18 +158,36 @@ std::string SharedState::buyFromMarket(const std::string &buyer, uint32_t listin
                 User seller = sm.load(listing.seller);
                 seller.coins += listing.price;
                 sm.save(seller);
-            } catch (...) {}
+            } catch (...) {
+            }
         }
     }
 
     return "";
 }
 
+std::string SharedState::removeFromMarket(const std::string &seller, uint32_t listingId) {
+    Plant plant;
+    {
+        std::lock_guard lock(marketMutex_);
+        auto it = std::find_if(market_.begin(), market_.end(),
+            [listingId](const MarketListing &l) { return l.id == listingId; });
+        if (it == market_.end()) return "listing not found";
+        if (it->seller != seller) return "not your listing";
+        plant = it->plant;
+        market_.erase(it);
+        saveMarket();
+    }
+    std::unique_lock lock(*userMutexes_.at(seller));
+    allUsers_.at(seller).plantsInventory.push_back(plant);
+    return "";
+}
+
 const std::vector<PlantSpecies> &SharedState::getShopListings() const { return shopListings_; }
 const std::vector<PlantSpecies> &SharedState::getCatalog() const { return catalog_; }
 
-const PlantSpecies* SharedState::findSpeciesById(uint32_t speciesId) const {
+const PlantSpecies *SharedState::findSpeciesById(uint32_t speciesId) const {
     auto it = std::ranges::find_if(catalog_,
-        [speciesId](const PlantSpecies& s){ return s.id == speciesId; });
+        [speciesId](const PlantSpecies &s) { return s.id == speciesId; });
     return it != catalog_.end() ? &*it : nullptr;
 }

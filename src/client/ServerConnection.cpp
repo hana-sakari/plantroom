@@ -60,7 +60,6 @@ ActionResult ServerConnection::loginKey(const std::string &username) {
         return ActionResult{true};
     }
     return ActionResult{false, resp["message"]};
-
 }
 
 ActionResult ServerConnection::registerUser(const std::string &username, const std::string &password) {
@@ -75,7 +74,6 @@ ActionResult ServerConnection::registerUser(const std::string &username, const s
         return ActionResult{true};
     }
     return ActionResult{false, resp["message"]};
-
 }
 
 User ServerConnection::getState() {
@@ -88,7 +86,7 @@ User ServerConnection::getState() {
     user.name = resp["name"];
     user.coins = resp["coins"];
     user.lastSavedAt = resp["lastSavedAt"];
-    user.plantsInventory = resp["plantsInventory"].get<std::vector<Plant>>();
+    user.plantsInventory = resp["plantsInventory"].get<std::vector<Plant> >();
     for (int i = 0; i < SLOT_COUNT; i++) {
         if (resp["slots"][i].is_null())
             user.slots_[i] = std::nullopt;
@@ -102,7 +100,7 @@ std::vector<PlantSpecies> ServerConnection::getShopList() {
     auto resp = exchange({{"cmd", Cmd::SHOP_LIST}});
     if (resp["status"] != "ok")
         throw std::runtime_error(resp.value("message", "server error"));
-    return resp["listings"].get<std::vector<PlantSpecies>>();
+    return resp["listings"].get<std::vector<PlantSpecies> >();
 }
 
 ActionResult ServerConnection::buy(uint32_t speciesId) {
@@ -114,8 +112,8 @@ ActionResult ServerConnection::buy(uint32_t speciesId) {
 
 ActionResult ServerConnection::place(uint8_t slot, uint32_t inventoryIdx) {
     auto resp = exchange({
-        {"cmd",          Cmd::PLACE},
-        {"slot",         slot},
+        {"cmd", Cmd::PLACE},
+        {"slot", slot},
         {"inventoryIdx", inventoryIdx}
     });
     if (resp["status"] == "ok")
@@ -148,7 +146,7 @@ std::vector<MarketListing> ServerConnection::getMarketListings() {
     auto resp = exchange({{"cmd", Cmd::MARKET_LIST}});
     if (resp["status"] != "ok")
         return {};
-    return resp["listings"].get<std::vector<MarketListing>>();
+    return resp["listings"].get<std::vector<MarketListing> >();
 }
 
 ActionResult ServerConnection::postToMarket(uint32_t inventoryIdx, uint32_t price) {
@@ -159,6 +157,12 @@ ActionResult ServerConnection::postToMarket(uint32_t inventoryIdx, uint32_t pric
 
 ActionResult ServerConnection::buyFromMarket(uint32_t listingId) {
     auto resp = exchange({{"cmd", Cmd::MARKET_BUY}, {"listingId", listingId}});
+    if (resp["status"] == "ok") return {true, ""};
+    return {false, resp.value("message", "unknown error")};
+}
+
+ActionResult ServerConnection::removeFromMarket(uint32_t listingId) {
+    auto resp = exchange({{"cmd", Cmd::MARKET_REMOVE}, {"listingId", listingId}});
     if (resp["status"] == "ok") return {true, ""};
     return {false, resp.value("message", "unknown error")};
 }

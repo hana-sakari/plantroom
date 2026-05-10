@@ -21,6 +21,7 @@ namespace Cmd {
     inline constexpr const char *MARKET_LIST = "MARKET_LIST";
     inline constexpr const char *MARKET_POST = "MARKET_POST";
     inline constexpr const char *MARKET_BUY = "MARKET_BUY";
+    inline constexpr const char *MARKET_REMOVE = "MARKET_REMOVE";
 }
 
 namespace Protocol {

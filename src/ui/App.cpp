@@ -33,10 +33,10 @@ void App::onRemovePlant(uint8_t slot) {
     if (res.ok) user_ = conn_.getState();
 }
 
-App::App(ServerConnection& conn) : conn_(conn) {
+App::App(ServerConnection &conn) : conn_(conn) {
     catalog_ = conn_.getShopList();
-    user_    = conn_.getState();
-    market_  = conn_.getMarketListings();
+    user_ = conn_.getState();
+    market_ = conn_.getMarketListings();
 }
 
 void App::run() {
@@ -72,12 +72,26 @@ void App::run() {
         user_.name,
         [this](uint32_t listingId) -> ActionResult {
             auto res = conn_.buyFromMarket(listingId);
-            if (res.ok) { user_ = conn_.getState(); market_ = conn_.getMarketListings(); }
+            if (res.ok) {
+                user_ = conn_.getState();
+                market_ = conn_.getMarketListings();
+            }
             return res;
         },
         [this](uint32_t inventoryIdx, uint32_t price) -> ActionResult {
             auto res = conn_.postToMarket(inventoryIdx, price);
-            if (res.ok) { user_ = conn_.getState(); market_ = conn_.getMarketListings(); }
+            if (res.ok) {
+                user_ = conn_.getState();
+                market_ = conn_.getMarketListings();
+            }
+            return res;
+        },
+        [this](uint32_t listingId) -> ActionResult {
+            auto res = conn_.removeFromMarket(listingId);
+            if (res.ok) {
+                user_ = conn_.getState();
+                market_ = conn_.getMarketListings();
+            }
             return res;
         });
 
@@ -105,7 +119,7 @@ void App::run() {
         }
 
         return vbox({
-            RenderStatusBar(user_.name, (int)user_.coins),
+            RenderStatusBar(user_.name, (int) user_.coins),
             tabBar,
             text(hint) | hcenter | color(Color::GrayDark),
             separator(),
@@ -141,7 +155,7 @@ void App::run() {
             return true;
         }
 
-        if (tab >= 0 && tab < (int)views.size())
+        if (tab >= 0 && tab < (int) views.size())
             return views[tab]->OnEvent(e);
         return false;
     });
@@ -155,7 +169,7 @@ void App::run() {
 
     try {
         screen.Loop(withNav);
-    } catch (const std::exception&) {
+    } catch (const std::exception &) {
         // socket died mid-session
     }
 
