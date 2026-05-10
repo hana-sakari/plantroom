@@ -56,4 +56,8 @@ namespace Protocol {
     nlohmann::json shopListResponse(const std::vector<PlantSpecies> &listings) {
         return {{"status", "ok"}, {"listings", listings}};
     }
+
+    nlohmann::json marketListResponse(const std::vector<MarketListing> &listings) {
+        return {{"status", "ok"}, {"listings", listings}};
+    }
 } // namespace Protocol

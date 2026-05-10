@@ -1,6 +1,7 @@
 #include "server/SharedState.h"
 #include "persistence/CatalogLoader.h"
 #include "persistence/SaveManager.h"
+#include <algorithm>
 #include <ctime>
 #include <fstream>
 #include <nlohmann/json.hpp>
@@ -70,6 +71,81 @@ void SharedState::tickAllOnlineUsers() {
         std::unique_lock userLock(*userMutexes_.at(username));
         incomeEngines_.at(username)->tick(user);
     }
+}
+
+std::vector<MarketListing> SharedState::getMarketListings() const {
+    std::lock_guard lock(marketMutex_);
+    return market_;
+}
+
+std::string SharedState::postToMarket(const std::string &seller, uint32_t inventoryIdx, uint32_t price) {
+    Plant plant;
+    {
+        std::unique_lock lock(*userMutexes_.at(seller));
+        auto &user = allUsers_.at(seller);
+        if (inventoryIdx >= user.plantsInventory.size())
+            return "invalid inventory index";
+        plant = user.plantsInventory[inventoryIdx];
+        user.plantsInventory.erase(user.plantsInventory.begin() + inventoryIdx);
+    }
+    std::lock_guard lock(marketMutex_);
+    market_.push_back({nextListingId_++, seller, plant, price});
+    return "";
+}
+
+std::string SharedState::buyFromMarket(const std::string &buyer, uint32_t listingId) {
+
+    MarketListing listing;
+    {
+        std::lock_guard lock(marketMutex_);
+        auto it = std::find_if(market_.begin(), market_.end(),
+            [listingId](const MarketListing &l) { return l.id == listingId; });
+        if (it == market_.end()) return "listing not found";
+        if (it->seller == buyer) return "cannot buy your own listing";
+        listing = *it;
+    }
+
+    {
+        std::unique_lock lock(*userMutexes_.at(buyer));
+        auto &user = allUsers_.at(buyer);
+        if (user.coins < listing.price) return "not enough coins";
+        user.coins -= listing.price;
+        user.plantsInventory.push_back(listing.plant);
+    }
+
+    {
+        std::lock_guard lock(marketMutex_);
+        auto it = std::find_if(market_.begin(), market_.end(),
+            [listingId](const MarketListing &l) { return l.id == listingId; });
+        if (it == market_.end()) {
+            // already bought by someone else — refund
+            std::unique_lock lock(*userMutexes_.at(buyer));
+            auto &user = allUsers_.at(buyer);
+            user.coins += listing.price;
+            user.plantsInventory.pop_back();
+            return "listing already sold";
+        }
+        market_.erase(it);
+    }
+
+    {
+        std::lock_guard mapLock(mapMutex_);
+        auto it = allUsers_.find(listing.seller);
+        if (it != allUsers_.end()) {
+            std::unique_lock lock(*userMutexes_.at(listing.seller));
+            it->second.coins += listing.price;
+        } else {
+            // seller offline — credit their save file
+            SaveManager sm(dataDir_ / "saves");
+            try {
+                User seller = sm.load(listing.seller);
+                seller.coins += listing.price;
+                sm.save(seller);
+            } catch (...) {}
+        }
+    }
+
+    return "";
 }
 
 const std::vector<PlantSpecies> &SharedState::getShopListings() const { return shopListings_; }

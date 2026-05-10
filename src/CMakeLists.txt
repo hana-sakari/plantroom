@@ -33,6 +33,7 @@ add_executable(plantroom
         ui/RoomView.cpp
         ui/ShopView.cpp
         ui/InventoryView.cpp
+        ui/MarketView.cpp
         ui/StatusBar.cpp
         util/AsciiRenderer.cpp
 )

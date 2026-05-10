@@ -143,3 +143,22 @@ ActionResult ServerConnection::addPublicKey(const std::string &pubkey) {
         return {true, ""};
     return {false, resp.value("message", "unknown error")};
 }
+
+std::vector<MarketListing> ServerConnection::getMarketListings() {
+    auto resp = exchange({{"cmd", Cmd::MARKET_LIST}});
+    if (resp["status"] != "ok")
+        return {};
+    return resp["listings"].get<std::vector<MarketListing>>();
+}
+
+ActionResult ServerConnection::postToMarket(uint32_t inventoryIdx, uint32_t price) {
+    auto resp = exchange({{"cmd", Cmd::MARKET_POST}, {"inventoryIdx", inventoryIdx}, {"price", price}});
+    if (resp["status"] == "ok") return {true, ""};
+    return {false, resp.value("message", "unknown error")};
+}
+
+ActionResult ServerConnection::buyFromMarket(uint32_t listingId) {
+    auto resp = exchange({{"cmd", Cmd::MARKET_BUY}, {"listingId", listingId}});
+    if (resp["status"] == "ok") return {true, ""};
+    return {false, resp.value("message", "unknown error")};
+}

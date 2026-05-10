@@ -1,5 +1,6 @@
 #include "ui/App.h"
 #include "InventoryView.h"
+#include "MarketView.h"
 #include "RoomView.h"
 #include "ShopView.h"
 #include "StatusBar.h"
@@ -35,6 +36,7 @@ void App::onRemovePlant(uint8_t slot) {
 App::App(ServerConnection& conn) : conn_(conn) {
     catalog_ = conn_.getShopList();
     user_    = conn_.getState();
+    market_  = conn_.getMarketListings();
 }
 
 void App::run() {
@@ -43,7 +45,7 @@ void App::run() {
 
     int tab = 0;
     int focusedArea = 0;
-    const std::vector<std::string> tabNames = {" Inventory ", " Room ", " Shop "};
+    const std::vector<std::string> tabNames = {" Inventory ", " Room ", " Shop ", " Market "};
     const auto tabToggle = Toggle(&tabNames, &tab);
 
     auto inventoryView = MakeInventoryView(user_, catalog_);
@@ -63,11 +65,24 @@ void App::run() {
             return onBuyPlant(speciesId);
         });
 
-    // Used for rendering only, Container::Tab drops keyboard events unless FTXUI
-    // considers it "focused" which it never is
-    auto tabContent = Container::Tab({inventoryView, roomView, shopView}, &tab);
-    // Direct handles indexed in tab order, events are routed here manually
-    std::vector<Component> views = {inventoryView, roomView, shopView};
+    auto marketView = MakeMarketView(
+        market_,
+        catalog_,
+        user_,
+        user_.name,
+        [this](uint32_t listingId) -> ActionResult {
+            auto res = conn_.buyFromMarket(listingId);
+            if (res.ok) { user_ = conn_.getState(); market_ = conn_.getMarketListings(); }
+            return res;
+        },
+        [this](uint32_t inventoryIdx, uint32_t price) -> ActionResult {
+            auto res = conn_.postToMarket(inventoryIdx, price);
+            if (res.ok) { user_ = conn_.getState(); market_ = conn_.getMarketListings(); }
+            return res;
+        });
+
+    auto tabContent = Container::Tab({inventoryView, roomView, shopView, marketView}, &tab);
+    std::vector<Component> views = {inventoryView, roomView, shopView, marketView};
 
     auto renderer = Renderer([&] {
         auto tabBar = tabToggle->Render();
@@ -83,8 +98,10 @@ void App::run() {
             hint = "  Up: back to tabs     Left/Right: scroll inventory  ";
         } else if (tab == 1) {
             hint = "  Up: back to tabs     Left/Right: navigate slots     Enter: place / remove  ";
-        } else {
+        } else if (tab == 2) {
             hint = "  Up: back to tabs     Left/Right: scroll shop     Enter: buy  ";
+        } else {
+            hint = "  Up: back to tabs     Left/Right: navigate     Enter: buy     p: post  ";
         }
 
         return vbox({
@@ -101,6 +118,7 @@ void App::run() {
     auto withNav = CatchEvent(renderer, [&](Event e) {
         if (e == Event::Custom) {
             user_ = conn_.getState();
+            if (tab == 3) market_ = conn_.getMarketListings();
             return true;
         }
         if (e == Event::Character('q')) {

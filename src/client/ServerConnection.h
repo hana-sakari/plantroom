@@ -3,6 +3,7 @@
 #include <vector>
 #include <nlohmann/json.hpp>
 
+#include "core/MarketListing.h"
 #include "core/PlantSpecies.h"
 #include "core/User.h"
 
@@ -26,6 +27,10 @@ public:
     ActionResult remove(uint8_t slot);
     ActionResult save();
     ActionResult addPublicKey(const std::string &pubkey);
+
+    std::vector<MarketListing> getMarketListings();
+    ActionResult postToMarket(uint32_t inventoryIdx, uint32_t price);
+    ActionResult buyFromMarket(uint32_t listingId);
 
 private:
     int fd_;
