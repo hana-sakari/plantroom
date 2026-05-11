@@ -34,7 +34,8 @@ void App::onRemovePlant(uint8_t slot) {
 }
 
 App::App(ServerConnection &conn) : conn_(conn) {
-    catalog_ = conn_.getShopList();
+    catalog_ = conn_.getCatalog();
+    shopListings_ = conn_.getShopList();
     user_ = conn_.getState();
     market_ = conn_.getMarketListings();
 }
@@ -60,7 +61,7 @@ void App::run() {
         }
     );
     auto shopView = MakeShopView(
-        catalog_,
+        shopListings_,
         [this](uint32_t speciesId) -> BuyResult {
             return onBuyPlant(speciesId);
         });

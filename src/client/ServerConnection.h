@@ -25,6 +25,8 @@ public:
 
     User getState();
 
+    std::vector<PlantSpecies> getCatalog();
+
     std::vector<PlantSpecies> getShopList();
 
     ActionResult buy(uint32_t speciesId);

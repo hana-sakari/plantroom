@@ -11,6 +11,7 @@ class App {
     ServerConnection &conn_;
     User user_;
     std::vector<PlantSpecies> catalog_;
+    std::vector<PlantSpecies> shopListings_;
     std::vector<MarketListing> market_;
 
     BuyResult onBuyPlant(uint32_t speciesId);

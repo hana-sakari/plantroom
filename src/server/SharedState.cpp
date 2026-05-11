@@ -60,7 +60,8 @@ void SharedState::loadUser(const std::string &username) {
 
 void SharedState::saveUser(const std::string &username) {
     SaveManager sm(dataDir_ / "saves");
-    std::shared_lock lock(*userMutexes_.at(username));
+    std::unique_lock lock(*userMutexes_.at(username));
+    allUsers_.at(username).lastSavedAt = std::time(nullptr);
     sm.save(allUsers_.at(username));
 }
 

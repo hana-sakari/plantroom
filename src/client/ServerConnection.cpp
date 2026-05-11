@@ -96,6 +96,13 @@ User ServerConnection::getState() {
     return user;
 }
 
+std::vector<PlantSpecies> ServerConnection::getCatalog() {
+    auto resp = exchange({{"cmd", Cmd::GET_CATALOG}});
+    if (resp["status"] != "ok")
+        throw std::runtime_error(resp.value("message", "server error"));
+    return resp["catalog"].get<std::vector<PlantSpecies> >();
+}
+
 std::vector<PlantSpecies> ServerConnection::getShopList() {
     auto resp = exchange({{"cmd", Cmd::SHOP_LIST}});
     if (resp["status"] != "ok")

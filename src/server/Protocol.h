@@ -17,6 +17,7 @@ namespace Cmd {
     inline constexpr const char *REMOVE = "REMOVE";
     inline constexpr const char *SAVE = "SAVE";
     inline constexpr const char *SHOP_LIST = "SHOP_LIST";
+    inline constexpr const char *GET_CATALOG = "GET_CATALOG";
     inline constexpr const char *ADD_KEY = "ADD_KEY";
     inline constexpr const char *MARKET_LIST = "MARKET_LIST";
     inline constexpr const char *MARKET_POST = "MARKET_POST";
@@ -33,6 +34,8 @@ namespace Protocol {
     nlohmann::json stateResponse(const User &user);
 
     nlohmann::json shopListResponse(const std::vector<PlantSpecies> &listings);
+
+    nlohmann::json catalogResponse(const std::vector<PlantSpecies> &catalog);
 
     nlohmann::json marketListResponse(const std::vector<MarketListing> &listings);
 

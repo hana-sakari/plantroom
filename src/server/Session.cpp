@@ -61,6 +61,8 @@ void Session::run() {
                 auto lock = sharedState.lockUserShared(username);
                 User *user = sharedState.getUser(username);
                 Protocol::writeLine(fd, Protocol::stateResponse(*user));
+            } else if (cmd == Cmd::GET_CATALOG) {
+                Protocol::writeLine(fd, Protocol::catalogResponse(sharedState.getCatalog()));
             } else if (cmd == Cmd::SHOP_LIST) {
                 Protocol::writeLine(fd, Protocol::shopListResponse(sharedState.getShopListings()));
             } else if (cmd == Cmd::BUY) {
@@ -100,6 +102,7 @@ void Session::run() {
                         return;
                     }
                     user.slots_[slot] = user.plantsInventory[inventoryIdx];
+                    user.slots_[slot]->lastPlacedAt = std::time(nullptr);
                     user.plantsInventory.erase(user.plantsInventory.begin() + inventoryIdx);
                     ok = true;
                 });
@@ -121,7 +124,12 @@ void Session::run() {
                         errMsg = "slot is already empty";
                         return;
                     }
-                    user.plantsInventory.push_back(user.slots_[slot].value());
+                    Plant &plant = user.slots_[slot].value();
+                    if (plant.lastPlacedAt > 0) {
+                        plant.accumulatedGrowthSeconds += std::time(nullptr) - plant.lastPlacedAt;
+                        plant.lastPlacedAt = 0;
+                    }
+                    user.plantsInventory.push_back(plant);
                     user.slots_[slot].reset();
                     ok = true;
                 });
