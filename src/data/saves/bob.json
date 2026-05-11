@@ -1,0 +1,29 @@
+{
+  "coins": 87,
+  "id": 2,
+  "lastSavedAt": 1778522615,
+  "name": "bob",
+  "plantsInventory": [],
+  "slots_": [
+    {
+      "accumulatedGrowthSeconds": 0,
+      "growthStage": "Mature",
+      "health": "Healthy",
+      "lastPlacedAt": 1,
+      "lastWateredAt": 0,
+      "speciesId": 3
+    },
+    {
+      "accumulatedGrowthSeconds": 0,
+      "growthStage": "Seedling",
+      "health": "Healthy",
+      "lastPlacedAt": 1778522605,
+      "lastWateredAt": 0,
+      "speciesId": 4
+    },
+    null,
+    null,
+    null,
+    null
+  ]
+}

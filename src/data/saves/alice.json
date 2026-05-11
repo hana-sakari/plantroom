@@ -1,0 +1,45 @@
+{
+  "coins": 289,
+  "id": 1,
+  "lastSavedAt": 1778522658,
+  "name": "alice",
+  "plantsInventory": [
+    {
+      "accumulatedGrowthSeconds": 0,
+      "growthStage": "Seedling",
+      "health": "Healthy",
+      "lastPlacedAt": 0,
+      "lastWateredAt": 0,
+      "speciesId": 5
+    }
+  ],
+  "slots_": [
+    {
+      "accumulatedGrowthSeconds": 1778522633,
+      "growthStage": "Mature",
+      "health": "Healthy",
+      "lastPlacedAt": 1778522637,
+      "lastWateredAt": 0,
+      "speciesId": 1
+    },
+    {
+      "accumulatedGrowthSeconds": 0,
+      "growthStage": "Seedling",
+      "health": "Healthy",
+      "lastPlacedAt": 1778522639,
+      "lastWateredAt": 0,
+      "speciesId": 6
+    },
+    {
+      "accumulatedGrowthSeconds": 0,
+      "growthStage": "Mature",
+      "health": "Healthy",
+      "lastPlacedAt": 1,
+      "lastWateredAt": 0,
+      "speciesId": 2
+    },
+    null,
+    null,
+    null
+  ]
+}

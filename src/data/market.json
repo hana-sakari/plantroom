@@ -1,1 +1,15 @@
-[]
+[
+  {
+    "id": 3,
+    "plant": {
+      "accumulatedGrowthSeconds": 0,
+      "growthStage": "Seedling",
+      "health": "Healthy",
+      "lastPlacedAt": 0,
+      "lastWateredAt": 0,
+      "speciesId": 3
+    },
+    "price": 10,
+    "seller": "alice"
+  }
+]

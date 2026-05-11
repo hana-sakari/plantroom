@@ -1,0 +1,29 @@
+{
+  "coins": 56,
+  "id": 0,
+  "lastSavedAt": 1778522582,
+  "name": "Meow",
+  "plantsInventory": [],
+  "slots_": [
+    null,
+    null,
+    null,
+    {
+      "accumulatedGrowthSeconds": 142,
+      "growthStage": "Mature",
+      "health": "Healthy",
+      "lastPlacedAt": 1778521905,
+      "lastWateredAt": 0,
+      "speciesId": 3
+    },
+    {
+      "accumulatedGrowthSeconds": 147,
+      "growthStage": "Mature",
+      "health": "Healthy",
+      "lastPlacedAt": 1778521906,
+      "lastWateredAt": 0,
+      "speciesId": 5
+    },
+    null
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "coins": 112,
+  "id": 0,
+  "lastSavedAt": 1778523991,
+  "name": "Meow2",
+  "plantsInventory": [],
+  "slots_": [
+    {
+      "accumulatedGrowthSeconds": 2138,
+      "growthStage": "Mature",
+      "health": "Healthy",
+      "lastPlacedAt": 1778523756,
+      "lastWateredAt": 0,
+      "speciesId": 4
+    },
+    {
+      "accumulatedGrowthSeconds": 408,
+      "growthStage": "Mature",
+      "health": "Healthy",
+      "lastPlacedAt": 1778522017,
+      "lastWateredAt": 0,
+      "speciesId": 4
+    },
+    null,
+    {
+      "accumulatedGrowthSeconds": 421,
+      "growthStage": "Mature",
+      "health": "Healthy",
+      "lastPlacedAt": 1778522028,
+      "lastWateredAt": 0,
+      "speciesId": 3
+    },
+    null,
+    null
+  ]
+}

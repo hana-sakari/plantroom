@@ -1,0 +1,54 @@
+{
+  "coins": 1214,
+  "id": 3,
+  "lastSavedAt": 1778522515,
+  "name": "carol",
+  "plantsInventory": [
+    {
+      "accumulatedGrowthSeconds": 1778522170,
+      "growthStage": "Mature",
+      "health": "Healthy",
+      "lastPlacedAt": 0,
+      "lastWateredAt": 0,
+      "speciesId": 1
+    },
+    {
+      "accumulatedGrowthSeconds": 1778522171,
+      "growthStage": "Mature",
+      "health": "Healthy",
+      "lastPlacedAt": 0,
+      "lastWateredAt": 0,
+      "speciesId": 6
+    },
+    {
+      "accumulatedGrowthSeconds": 5,
+      "growthStage": "Seedling",
+      "health": "Healthy",
+      "lastPlacedAt": 0,
+      "lastWateredAt": 0,
+      "speciesId": 7
+    }
+  ],
+  "slots_": [
+    null,
+    {
+      "accumulatedGrowthSeconds": 1778522159,
+      "growthStage": "Mature",
+      "health": "Healthy",
+      "lastPlacedAt": 1778522511,
+      "lastWateredAt": 0,
+      "speciesId": 2
+    },
+    {
+      "accumulatedGrowthSeconds": 1778522172,
+      "growthStage": "Mature",
+      "health": "Healthy",
+      "lastPlacedAt": 1778522508,
+      "lastWateredAt": 0,
+      "speciesId": 7
+    },
+    null,
+    null,
+    null
+  ]
+}
