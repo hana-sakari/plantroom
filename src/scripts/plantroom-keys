@@ -5,7 +5,7 @@ KEY_TYPE="$1"
 KEY_BLOB="$2"
 
 # update these two paths when running from another computer
-AUTH_JSON="/home/daryna/SemestralProject/lymarend/project/src/data/auth.json"
+AUTH_JSON="/home/daryna/SemestralProject/lymarend/project/src/cmake-build-debug/data/auth.json"
 BINARY="/home/daryna/SemestralProject/lymarend/project/src/cmake-build-debug/plantroom"
 
 FULL_KEY="$KEY_TYPE $KEY_BLOB"
