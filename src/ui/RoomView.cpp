@@ -51,12 +51,12 @@ Component MakeRoomView(
         for (int i = 0; i < SLOT_COUNT; i++) {
             Element slot;
             if (user.slots_[i].has_value()) {
-                const auto& plant = *user.slots_[i];
-                const auto* sp = findSpecies(catalog, plant.speciesId);
+                const auto &plant = *user.slots_[i];
+                const auto *sp = findSpecies(catalog, plant.speciesId);
                 std::string art = "  [ ]  ";
                 if (sp) {
                     int idx = static_cast<int>(plant.growthStage);
-                    if (idx < (int)sp->asciiArt.size()) art = sp->asciiArt[idx];
+                    if (idx < (int) sp->asciiArt.size()) art = sp->asciiArt[idx];
                 }
                 slot = text(art) | center | border | size(WIDTH, EQUAL, 14);
             } else {

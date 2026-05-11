@@ -7,6 +7,6 @@ auto CatalogLoader::load(const std::filesystem::path &path) -> std::vector<Plant
     std::ifstream ifs(path);
     json j;
     ifs >> j;
-    auto species = j.get<std::vector<PlantSpecies>>();
+    auto species = j.get<std::vector<PlantSpecies> >();
     return species;
 }

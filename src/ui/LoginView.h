@@ -3,4 +3,4 @@
 #include <string>
 
 // Shows login/register screen, blocks until success, returns the logged-in username
-std::string RunLoginFlow(ServerConnection& conn);
+std::string RunLoginFlow(ServerConnection &conn);

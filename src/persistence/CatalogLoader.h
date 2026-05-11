@@ -6,5 +6,5 @@
 
 class CatalogLoader {
 public:
-    static std::vector<PlantSpecies> load(const std::filesystem::path& path);
+    static std::vector<PlantSpecies> load(const std::filesystem::path &path);
 };

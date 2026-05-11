@@ -8,43 +8,41 @@ using namespace ftxui;
 using namespace PlantUtils;
 
 namespace {
+    constexpr int VISIBLE_CARDS = 5;
+    constexpr int CARD_WIDTH = 14;
 
-constexpr int VISIBLE_CARDS = 5;
-constexpr int CARD_WIDTH = 14;
-
-Color rarityColor(Rarity r) {
-    switch (r) {
-        case Rarity::Common: return Color::White;
-        case Rarity::Rare:   return Color::Cyan;
-        case Rarity::Exotic: return Color::Yellow;
+    Color rarityColor(Rarity r) {
+        switch (r) {
+            case Rarity::Common: return Color::White;
+            case Rarity::Rare: return Color::Cyan;
+            case Rarity::Exotic: return Color::Yellow;
+        }
+        return Color::White;
     }
-    return Color::White;
-}
 
-Element makeShopCard(const PlantSpecies& species, bool selected) {
-    std::string art = "  [ ]  ";
-    if (!species.asciiArt.empty())
-        art = species.asciiArt[0];
+    Element makeShopCard(const PlantSpecies &species, bool selected) {
+        std::string art = "  [ ]  ";
+        if (!species.asciiArt.empty())
+            art = species.asciiArt[0];
 
-    auto card = vbox({
-        text(art) | center,
-        filler(),
-        separator(),
-        text(species.name) | center | bold,
-        text(rarityName(species.rarity)) | center | color(rarityColor(species.rarity)),
-        text(std::to_string(species.price) + " coins") | center | color(Color::Yellow),
-    }) | border | size(WIDTH, EQUAL, CARD_WIDTH);
+        auto card = vbox({
+            text(art) | center,
+            filler(),
+            separator(),
+            text(species.name) | center | bold,
+            text(rarityName(species.rarity)) | center | color(rarityColor(species.rarity)),
+            text(std::to_string(species.price) + " coins") | center | color(Color::Yellow),
+        }) | border | size(WIDTH, EQUAL, CARD_WIDTH);
 
-    if (selected) card = card | color(Color::Green);
-    return card;
-}
-
+        if (selected) card = card | color(Color::Green);
+        return card;
+    }
 } // namespace
 
 Component MakeShopView(
-    const std::vector<PlantSpecies>& catalog,
+    const std::vector<PlantSpecies> &catalog,
     std::function<BuyResult(uint32_t speciesId)> onBuy
-    ) {
+) {
     struct ShopState {
         int selected = 0;
         bool buyingMode = false;
@@ -64,7 +62,7 @@ Component MakeShopView(
             }) | border | flex;
         }
 
-        int n = (int)catalog.size();
+        int n = (int) catalog.size();
         int start = std::max(0, state->selected - VISIBLE_CARDS / 2);
         if (start + VISIBLE_CARDS > n) start = std::max(0, n - VISIBLE_CARDS);
         int end = std::min(n, start + VISIBLE_CARDS);
@@ -75,7 +73,7 @@ Component MakeShopView(
 
         Element bottomBar;
         if (state->buyingMode) {
-            const auto& sel = catalog[state->selected];
+            const auto &sel = catalog[state->selected];
             bottomBar = hbox({
                 text("Buy ") | bold,
                 text(sel.name) | bold | color(rarityColor(sel.rarity)),
@@ -91,7 +89,7 @@ Component MakeShopView(
             Color msgColor = state->messageIsError ? Color::Red : Color::Green;
             bottomBar = text(state->message) | center | color(msgColor);
         } else {
-            const auto& sel = catalog[state->selected];
+            const auto &sel = catalog[state->selected];
             std::string desc = sel.description + "  |  Income: " + std::to_string(sel.incomePerMinute) + "/min";
             bottomBar = text(desc) | center | color(Color::GrayDark);
         }
@@ -134,10 +132,16 @@ Component MakeShopView(
             }
             return true;
         } else {
-            int n = (int)catalog.size();
+            int n = (int) catalog.size();
             if (n == 0) return false;
-            if (e == Event::ArrowRight) { state->selected = std::min(n - 1, state->selected + 1); return true; }
-            if (e == Event::ArrowLeft)  { state->selected = std::max(0,     state->selected - 1); return true; }
+            if (e == Event::ArrowRight) {
+                state->selected = std::min(n - 1, state->selected + 1);
+                return true;
+            }
+            if (e == Event::ArrowLeft) {
+                state->selected = std::max(0, state->selected - 1);
+                return true;
+            }
             if (e == Event::Return) {
                 state->buyingMode = true;
                 state->message = "";

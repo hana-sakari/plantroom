@@ -6,8 +6,8 @@
 #include <vector>
 
 ftxui::Component MakeRoomView(
-    const User& user,
-    const std::vector<PlantSpecies>& catalog,
+    const User &user,
+    const std::vector<PlantSpecies> &catalog,
     std::function<void(uint8_t slot, int inventoryIdx)> onPlace,
     std::function<void(uint8_t slot)> onRemove
 );

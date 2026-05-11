@@ -1,20 +1,21 @@
 #include "Shop.h"
 #include <algorithm>
 
-Shop::Shop(const std::vector<PlantSpecies>& catalog) : catalog_(catalog) {}
+Shop::Shop(const std::vector<PlantSpecies> &catalog) : catalog_(catalog) {
+}
 
-auto Shop::getAvailable() const -> const std::vector<PlantSpecies>& {
+auto Shop::getAvailable() const -> const std::vector<PlantSpecies> & {
     return catalog_;
 }
 
-auto Shop::findSpecies(const uint32_t &speciesId) const -> const PlantSpecies* {
+auto Shop::findSpecies(const uint32_t &speciesId) const -> const PlantSpecies * {
     auto it = std::find_if(catalog_.begin(), catalog_.end(),
-        [&](const PlantSpecies& s) { return s.id == speciesId; });
+        [&](const PlantSpecies &s) { return s.id == speciesId; });
     return it == catalog_.end() ? nullptr : &(*it);
 }
 
-auto Shop::buy(const uint32_t &speciesId, User& user) const -> BuyResult {
-    const PlantSpecies* species = findSpecies(speciesId);
+auto Shop::buy(const uint32_t &speciesId, User &user) const -> BuyResult {
+    const PlantSpecies *species = findSpecies(speciesId);
     if (!species) return BuyResult::NotFound;
     if (user.coins < static_cast<uint32_t>(species->price)) return BuyResult::NotEnoughCoins;
 

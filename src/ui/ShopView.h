@@ -6,6 +6,6 @@
 #include <vector>
 
 ftxui::Component MakeShopView(
-    const std::vector<PlantSpecies>& catalog,
+    const std::vector<PlantSpecies> &catalog,
     std::function<BuyResult(uint32_t speciesId)> onBuy
-    );
+);

@@ -5,7 +5,6 @@
 using namespace ftxui;
 
 
-
 ftxui::Element RenderStatusBar(const std::string &playerName, int coins) {
     auto statusBar = hbox({
         text(" PlantRoom ") | bold,
@@ -16,5 +15,4 @@ ftxui::Element RenderStatusBar(const std::string &playerName, int coins) {
     }) | border;
 
     return statusBar;
-
 }

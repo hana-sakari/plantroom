@@ -9,7 +9,7 @@ SaveManager::SaveManager(std::filesystem::path saveDir) : saveDir_(std::move(sav
     std::filesystem::create_directories(saveDir_);
 }
 
-void SaveManager::save(const User& user) const {
+void SaveManager::save(const User &user) const {
     auto filePath = saveDir_ / (user.name + ".json");
     std::ofstream ofs(filePath);
 
@@ -20,7 +20,7 @@ void SaveManager::save(const User& user) const {
     j["lastSavedAt"] = user.lastSavedAt;
     j["plantsInventory"] = user.plantsInventory;
     json slotsJson = json::array();
-    for (const auto& slot : user.slots_) {
+    for (const auto &slot: user.slots_) {
         slotsJson.push_back(slot.has_value() ? json(*slot) : json(nullptr));
     }
     j["slots_"] = slotsJson;
@@ -28,7 +28,7 @@ void SaveManager::save(const User& user) const {
     ofs << j.dump(2);
 }
 
-User SaveManager::load(const std::string& name) const {
+User SaveManager::load(const std::string &name) const {
     auto filePath = saveDir_ / (name + ".json");
     std::ifstream ifs(filePath);
 
@@ -41,7 +41,7 @@ User SaveManager::load(const std::string& name) const {
     user.coins = j["coins"];
     user.lastSavedAt = j["lastSavedAt"];
     user.plantsInventory = j["plantsInventory"];
-    const auto& slotsJson = j["slots_"];
+    const auto &slotsJson = j["slots_"];
     for (size_t i = 0; i < slotsJson.size() && i < user.slots_.size(); ++i) {
         user.slots_[i] = slotsJson[i].is_null() ? std::nullopt : std::optional<Plant>(slotsJson[i].get<Plant>());
     }

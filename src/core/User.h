@@ -10,7 +10,7 @@
 inline constexpr uint8_t SLOT_COUNT = 6;
 
 
-struct User { //think about identifying users
+struct User {
     uint32_t id;
     std::string name;
     uint32_t coins = 0;
@@ -18,5 +18,3 @@ struct User { //think about identifying users
     std::vector<Plant> plantsInventory;
     std::array<std::optional<Plant>, SLOT_COUNT> slots_;
 };
-
-

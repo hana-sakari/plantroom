@@ -51,7 +51,7 @@ std::string RunLoginFlow(ServerConnection &conn) {
         }
     };
 
-    auto loginBtn    = Button("  Login  ",    tryLogin);
+    auto loginBtn = Button("  Login  ", tryLogin);
     auto registerBtn = Button("  Register  ", tryRegister);
 
     auto form = Container::Vertical({
@@ -72,8 +72,8 @@ std::string RunLoginFlow(ServerConnection &conn) {
                 hbox({loginBtn->Render(), text("  "), registerBtn->Render()}) | center,
                 separator(),
                 text(errorMsg.empty() ? "Tab to navigate   Enter to confirm" : errorMsg)
-                    | center
-                    | color(errorMsg.empty() ? Color::GrayDark : Color::Red),
+                | center
+                | color(errorMsg.empty() ? Color::GrayDark : Color::Red),
             }) | border | size(WIDTH, EQUAL, 50) | center,
             filler(),
         });

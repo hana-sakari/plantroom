@@ -2,4 +2,4 @@
 
 #include <ftxui/dom/elements.hpp>
 
-ftxui::Element RenderStatusBar(const std::string& playerName, int coins);
+ftxui::Element RenderStatusBar(const std::string &playerName, int coins);

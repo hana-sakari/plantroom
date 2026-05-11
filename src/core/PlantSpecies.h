@@ -21,4 +21,5 @@ struct PlantSpecies {
 
 NLOHMANN_JSON_SERIALIZE_ENUM(Rarity, {{Rarity::Common, "Common"}, {Rarity::Rare, "Rare"}, {Rarity::Exotic, "Exotic"}})
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(PlantSpecies, id, name, description, price, rarity, incomePerMinute, growthDurations, asciiArt)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(PlantSpecies, id, name, description, price, rarity, incomePerMinute, growthDurations,
+    asciiArt)

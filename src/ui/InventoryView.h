@@ -5,4 +5,4 @@
 #include "core/PlantSpecies.h"
 #include <vector>
 
-ftxui::Component MakeInventoryView(const User& user, const std::vector<PlantSpecies>& catalog);
+ftxui::Component MakeInventoryView(const User &user, const std::vector<PlantSpecies> &catalog);
