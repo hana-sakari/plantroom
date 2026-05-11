@@ -1,78 +1,67 @@
-
 # Specification
 
 ## Theme: Terminal-based interactive application
 
 ### User interaction
 
-User will interact with the program by text commands/selections(for example moving with arrows and pressing enter for choosing).
+Users interact through a terminal UI navigated with arrow keys and Enter. The interface updates in real time within a session — coin balance, inventory, and plant growth stages refresh automatically every second without any input from the user.
 
-User will get real time visible updates in a single session, so for example inventory updates, balance changes and so on.
+### What the program does
 
-### Functionality and program discription
+PlantRoom is a multiplayer terminal game where users grow plants and trade them. Each user connects via SSH, which automatically launches the game client. The client connects to a background server process that manages all shared state.
 
-After connecting via ssh and sending their public key the user is able to:
+After logging in or registering, the user can:
 
-- Interact with the app
+- Buy plants from the shop using in-game coins
+- Place plants into one of six room slots and watch them grow through stages
+- Move plants back to inventory and post them on the marketplace
+- Buy plants from other users on the marketplace
+- Earn coins passively while the app is open, and receive offline income for time spent away
 
-- Make some actions that persist across sessions
+All actions persist across sessions via per-user save files on the server.
 
-- Earn fake in-app currency
+### Core features
 
-- Spend currency to obtain items
+- Terminal UI built with FTXUI
+- Automatic session start via SSH using `AuthorizedKeysCommand`
+- Password authentication with SHA-256 + salt hashing
+- SSH public key login — on first connection the key is registered, on subsequent connections login is automatic with no UI shown
+- Persistent user data stored as JSON
+- Multi-user support with simultaneous SSH connections
+- Marketplace where users can post and buy plants from each other
+- Passive coin income with offline progress calculated on login
 
-- View obtained items
+## Architecture
 
-### Core features:
+The project is split into two executables: `plantroom-server` and `plantroom` (the client).
 
-- terminal UI
+The server runs as a background daemon and holds all shared state in memory. It accepts connections over a Unix domain socket and handles each client in its own thread. Shared data is protected by per-user mutexes and a separate mutex for the marketplace. A background tick thread runs every second to update coin balances for all online users.
 
-- Automatic user session start via SSH
+The client is a thin FTXUI frontend that sends commands to the server and renders the responses. It holds no authoritative state of its own.
 
-- Persistent user data
+Communication uses a simple newline-delimited JSON protocol over the socket.
 
-- Inventory management
+**Server modules:** `PlantRoomServer`, `Session`, `SharedState`, `AuthStore`, `Protocol`
 
-### Probable future expansion
+**Client modules:** `ServerConnection`, `App`, `LoginView`, `RoomView`, `ShopView`, `InventoryView`, `MarketView`, `StatusBar`
 
-- Multi-user support (simultaneous SSH connections)
+**Shared core:** `User`, `Plant`, `PlantSpecies`, `Shop`, `MarketListing`, `IncomeEngine`
 
-- Shared “global state”
+**Persistence:** `SaveManager` (per-user JSON saves), `CatalogLoader` (reads `plants.json`)
 
-## Architecture (not final version)
+## Third-party libraries
 
-- SSH wrapper layer
+- nlohmann/json — JSON parsing and serialization
+- FTXUI — terminal UI rendering and event handling
+- OpenSSL (libcrypto) — SHA-256 password hashing
 
-- main application
+All libraries except OpenSSL are fetched automatically by CMake via FetchContent. OpenSSL must be installed on the system.
 
-- user database (json)
+## SSH setup
 
-- item catalog
+The SSH integration uses OpenSSH's `AuthorizedKeysCommand` feature. When a user connects, sshd calls the `plantroom-keys` script with the connecting key. The script looks up the key in `auth.json`:
 
-- session manager
+- If the key belongs to a known user, it outputs an `authorized_keys` entry with `command="plantroom --user <username>"`, which makes sshd launch the client and skip the login screen.
+- If the key is unknown, it outputs an entry with `command="plantroom"` (no username), so the user sees the login/register screen. After logging in, the client registers the key automatically for future connections.
 
-## Third party libraries
-
-- nlohmann for working with JSON
-
-- FTXUI - for terminal UI (or fmt/cpp-terminal as a fall-back, but preferably FTXUI)
-
-- Cmake
-
-Everything is portable and works on any OS that supports SSH and a C++ runtime
-
-## SSH connection
-
-For now the idea is:
-
-1) User generates an SSH key (if they don’t already have one)
-
-2) User connects via ssh gameuser@your-server-ip
-
-3) They paste their public key
-
-4) On my computer their key is saved into authorized_keys with the command that restricts them to only entering my app
-
-5) They connect via ssh myapp
-
-6) The user can interact with the app
+The `scripts/` directory contains `plantroom-keys` and `sshd_plantroom.conf` with the required sshd directives.
