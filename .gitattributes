@@ -1,0 +1,19 @@
+# Normalize text files to LF line endings.
+* text=auto eol=lf
+
+# Treat binary/media files as binary: no line-ending normalization, no text diff,
+# no 3-way text merge.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.bmp binary
+*.ico binary
+*.webp binary
+*.pdf binary
+*.zip binary
+*.gz binary
+*.ttf binary
+*.otf binary
+*.woff binary
+*.woff2 binary
