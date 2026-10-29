@@ -21,9 +21,9 @@ terminal UI that redraws itself once a second while you watch.
 ## What it is
 
 Each player gets a room with six slots. Plants placed in a slot grow through three stages — Seedling, Growing,
-Mature — on a real-world timer, and generate coins passively the whole time, online or off. Coins buy more plants
-from the shop. Grown plants can be moved to the **Market** and sold directly to other connected players, or bought
-off it in turn.
+Mature — on a real-world timer, and generate coins passively while they sit in a slot (at half rate while you're
+offline). Coins buy more plants from the shop. Plants from your inventory can be listed on the **Market** and sold
+to other players, or bought off it in turn.
 
 Authentication is by SSH key. The first time you connect you register. Every time after that, `sshd` looks up your
 key and drops you straight into your saved room with no login screen.
@@ -43,8 +43,9 @@ key and drops you straight into your saved room with no login screen.
   script that checks the presented key against `auth.json` and returns a `command=` directive that either launches
   the game already logged in as that user or falls through to the in-app login/registration screen. New users log
   in with a password (SHA-256 + per-user salt via OpenSSL) and their key is registered automatically for next time.
-- **Offline progress.** When you log back in, the server replays however much real time passed through the same
-  income engine used while you're online, so idle players catch up correctly instead of the timer resetting.
+- **Offline progress.** When you log back in, the server credits income for the time since your last save, at
+  half the online rate and capped at 8 hours. Growth stages are timestamp-based, so plants keep growing while
+  you're away.
 
 ```mermaid
 flowchart LR
@@ -211,8 +212,9 @@ ssh plantroom@localhost
 
 ## Playing
 
-**Coins** build up passively at a rate set by the plants currently in your room slots, whether the app is open or
-not: offline progress is applied the moment you log back in.
+**Coins**: new players start with 100. Each plant in a room slot earns its species' coins-per-minute rate,
+whatever its growth stage. Plants in your inventory earn nothing. While you're offline, you earn half that rate
+for up to 8 hours, credited when you log back in. You can also earn coins by selling plants on the Market.
 
 **Buying plants**: go to the Shop tab and press Enter on a plant to add it to your inventory.
 
